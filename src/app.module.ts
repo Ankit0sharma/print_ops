@@ -9,7 +9,8 @@ import { AppResolver } from './app.resolver';
       driver: ApolloDriver,
       autoSchemaFile: true,
       sortSchema: true,
-      playground: true
+      playground: true,
+      path: '/graphql',
     }),
   ],
   controllers: [],
