@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -16,6 +16,7 @@ import { JobModule } from './modules/jobs/jobs.module';
 import { MaterialModule } from './modules/materials/materials.module';
 import { EventModule } from './modules/events/events.module';
 import { InvoiceModule } from './modules/invoices/invoices.module';
+import { CSRFProtectionMiddleware } from './apollo-require-preflight';
 
 @Module({
   imports: [
@@ -37,27 +38,13 @@ import { InvoiceModule } from './modules/invoices/invoices.module';
       },
     }),
 
-    // ✅ GraphQL config - optimized for playground compatibility
-    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+    GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      useFactory: () => ({
-        autoSchemaFile: process.env.NODE_ENV === 'production' 
-          ? true  // Use in-memory schema for production
-          : join(process.cwd(), 'src/schema.gql'), // Local development schema file
-        sortSchema: true,
-        playground: process.env.NODE_ENV !== 'production', // Disable playground in production
-        introspection: process.env.NODE_ENV !== 'production', // Disable introspection in production
-        context: ({ req, res }) => ({ req, res }),
-        installSubscriptionHandlers: false,
-        
-        // Disable type generation in production
-        definitions: process.env.NODE_ENV === 'production' 
-          ? undefined 
-          : {
-              path: join(process.cwd(), 'src/graphql.ts'),
-              outputAs: 'class',
-            },
-      }),
+      autoSchemaFile: true, // in-memory schema (safe for serverless)
+      sortSchema: true,
+      playground: true, // ✅ force enabled for Vercel/production
+      introspection: true, // ✅ same here
+      context: ({ req, res }) => ({ req, res }),
     }),
 
     UsersModule,
@@ -72,4 +59,9 @@ import { InvoiceModule } from './modules/invoices/invoices.module';
   providers: [SupabaseService],
   exports: [SupabaseService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    // Here you can add middleware that adds CSRF-related headers
+    consumer.apply(CSRFProtectionMiddleware).forRoutes('*');
+  }
+}
