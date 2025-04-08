@@ -8,11 +8,11 @@
     "vercel-build": "tsc"
   },
   "dependencies": {
-    "@nestjs/platform-express": "^11.0.13",
-    "@types/node": "^20.11.30",
-    "express": "^5.1.0",
     "@nestjs/common": "^10.0.0",
-  "@nestjs/core": "^10.0.0"
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/platform-express": "^10.4.15",
+    "@types/node": "^20.11.30",
+    "express": "^5.1.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
