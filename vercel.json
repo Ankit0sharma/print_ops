@@ -2,22 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "src/main.ts",
+      "src": "dist/main.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/graphql",
-      "dest": "src/main.ts",
-      "methods": ["GET", "POST", "OPTIONS"]
-    },
-    {
       "src": "/(.*)",
-      "dest": "src/main.ts"
+      "dest": "/dist/main.js"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
