@@ -1,0 +1,355 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CreateCustomerInput {
+  contactPerson: String!
+  email: String!
+  isActive: Boolean! = true
+  isFavorite: Boolean! = false
+  name: String!
+  phone: String!
+  type: CustomerType!
+}
+
+input CreateEventInput {
+  description: String
+  endTime: DateTime
+  jobId: String
+  location: String
+  startTime: DateTime
+  title: String!
+  type: EventType!
+}
+
+input CreateInvoiceInput {
+  amount: Float!
+  customerId: String!
+  dueDate: DateTime
+  invoiceNumber: String!
+  issueDate: DateTime
+  jobId: String!
+  quickbooksSynced: Boolean! = false
+  status: InvoiceStatus! = DRAFT
+}
+
+input CreateJobInput {
+  assignedTo: String
+  customerId: String!
+  dueDate: DateTime
+  isApproved: Boolean! = false
+  jobNumber: String!
+  name: String!
+  priority: JobPriority! = NORMAL
+  status: JobStatus! = DESIGN
+}
+
+input CreateMaterialInput {
+  category: MaterialCategory!
+  lowStock: Boolean! = false
+  materialId: String!
+  minimumStock: Float!
+  name: String!
+  notes: String
+  price: Float!
+  stockLevel: Float!
+  supplier: String!
+  unit: String
+}
+
+input CreateUserInput {
+  email: String!
+  firstName: String!
+  isTwoFactorEnabled: Boolean
+  lastName: String!
+  password: String!
+  role: UserRole
+}
+
+type Customer {
+  contactPerson: String!
+  createdAt: DateTime!
+  email: String!
+  id: ID!
+  isActive: Boolean!
+  isFavorite: Boolean!
+  name: String!
+  phone: String!
+  type: CustomerType!
+  updatedAt: DateTime!
+}
+
+"""Customer type categories"""
+enum CustomerType {
+  CORPORATE
+  SMALL_BUSINESS
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Event {
+  createdAt: DateTime!
+  description: String
+  endTime: DateTime
+  id: ID!
+  job: Job
+  jobId: String
+  location: String
+  startTime: DateTime
+  title: String!
+  type: EventType!
+  updatedAt: DateTime!
+}
+
+"""Event type categories"""
+enum EventType {
+  DEADLINE
+  INSTALLATION
+  MEETING
+  REMINDER
+}
+
+type Invoice {
+  amount: Float!
+  createdAt: DateTime!
+  customer: Customer!
+  customerId: String!
+  dueDate: DateTime
+  id: ID!
+  invoiceNumber: String!
+  issueDate: DateTime
+  job: Job!
+  jobId: String!
+  quickbooksSynced: Boolean!
+  status: InvoiceStatus!
+  updatedAt: DateTime!
+}
+
+"""Invoice status types"""
+enum InvoiceStatus {
+  DRAFT
+  OVERDUE
+  PAID
+  PENDING
+}
+
+type Job {
+  assignedTo: String!
+  createdAt: DateTime!
+  customer: Customer!
+  customerId: String!
+  dueDate: DateTime
+  id: ID!
+  isApproved: Boolean!
+  jobNumber: String!
+  name: String!
+  priority: JobPriority!
+  status: JobStatus!
+  updatedAt: DateTime!
+}
+
+"""Job priority levels"""
+enum JobPriority {
+  HIGH
+  NORMAL
+  URGENT
+}
+
+"""Job status types"""
+enum JobStatus {
+  APPROVAL
+  COMPLETED
+  DESIGN
+  PRINT
+  PRODUCTION
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type LoginResponse {
+  token: String!
+  user: UserResponse!
+}
+
+type Material {
+  category: MaterialCategory!
+  createdAt: DateTime!
+  id: ID!
+  lowStock: Boolean!
+  materialId: String!
+  minimumStock: Float!
+  name: String!
+  notes: String
+  price: Float!
+  stockLevel: Float!
+  supplier: String!
+  unit: String
+  updatedAt: DateTime!
+}
+
+"""Material category types"""
+enum MaterialCategory {
+  SUBSTRATE
+  VINYL
+}
+
+type Mutation {
+  createCustomer(createCustomerInput: CreateCustomerInput!): Customer!
+  createEvent(createEventInput: CreateEventInput!): Event!
+  createInvoice(createInvoiceInput: CreateInvoiceInput!): Invoice!
+  createJob(createJobInput: CreateJobInput!): Job!
+  createMaterial(createMaterialInput: CreateMaterialInput!): Material!
+  createUser(createUserInput: CreateUserInput!): User!
+  deleteCustomer(id: String!): Boolean!
+  deleteEvent(id: String!): Boolean!
+  deleteInvoice(id: String!): Boolean!
+  deleteJob(id: String!): Boolean!
+  deleteMaterial(id: String!): Boolean!
+  deleteUser(id: String!): Boolean!
+  login(loginInput: LoginInput!): LoginResponse!
+  logout: Boolean!
+  markInvoiceAsSynced(id: String!): Invoice!
+  toggleCustomerFavorite(id: String!): Customer!
+  updateCustomer(id: String!, updateCustomerInput: UpdateCustomerInput!): Customer!
+  updateEvent(id: String!, updateEventInput: UpdateEventInput!): Event!
+  updateInvoice(id: String!, updateInvoiceInput: UpdateInvoiceInput!): Invoice!
+  updateInvoiceStatus(id: String!, status: String!): Invoice!
+  updateJob(id: String!, updateJobInput: UpdateJobInput!): Job!
+  updateJobStatus(id: String!, status: String!): Job!
+  updateMaterial(id: String!, updateMaterialInput: UpdateMaterialInput!): Material!
+  updateMaterialStock(id: String!, quantity: Int!): Material!
+  updateUser(id: String!, updateUserInput: UpdateUserInput!): User!
+  validateToken(token: String!): Boolean!
+}
+
+type Query {
+  getActiveCustomers: [Customer!]!
+  getAllCustomers: [Customer!]!
+  getAllEvents: [Event!]!
+  getAllInvoices: [Invoice!]!
+  getAllJobs: [Job!]!
+  getAllMaterials: [Material!]!
+  getCustomer(id: String!): Customer!
+  getEvent(id: String!): Event!
+  getEventsByDateRange(endDate: DateTime!, startDate: DateTime!): [Event!]!
+  getEventsByJob(jobId: String!): [Event!]!
+  getEventsByType(type: String!): [Event!]!
+  getFavoriteCustomers: [Customer!]!
+  getInactiveCustomers: [Customer!]!
+  getInvoice(id: String!): Invoice!
+  getInvoicesByCustomer(customerId: String!): [Invoice!]!
+  getInvoicesByJob(jobId: String!): [Invoice!]!
+  getInvoicesByMonth(month: Float!, year: Float!): [Invoice!]!
+  getInvoicesByStatus(status: InvoiceStatus!): [Invoice!]!
+  getJob(id: String!): Job!
+  getJobsByCustomer(customerId: String!): [Job!]!
+  getJobsByStatus(status: String!): [Job!]!
+  getLowStockMaterials: [Material!]!
+  getMaterial(id: String!): Material!
+  getMaterialByMaterialId(materialId: String!): Material!
+  getMaterialsByCategory(category: String!): [Material!]!
+  getOverdueInvoices: [Invoice!]!
+  getTodayEvents: [Event!]!
+  getTomorrowEvents: [Event!]!
+  getTotalOutstanding: Float!
+  getTotalPaidThisMonth: Float!
+  getUpcomingJobs(days: Int!): [Job!]!
+  getUsers: [User!]!
+}
+
+input UpdateCustomerInput {
+  contactPerson: String
+  email: String
+  isActive: Boolean
+  isFavorite: Boolean
+  name: String
+  phone: String
+  type: CustomerType
+}
+
+input UpdateEventInput {
+  description: String
+  endTime: DateTime
+  jobId: String
+  location: String
+  startTime: DateTime
+  title: String
+  type: EventType
+}
+
+input UpdateInvoiceInput {
+  amount: Float
+  customerId: String
+  dueDate: DateTime
+  invoiceNumber: String
+  issueDate: DateTime
+  jobId: String
+  quickbooksSynced: Boolean
+  status: InvoiceStatus
+}
+
+input UpdateJobInput {
+  assignedTo: String
+  customerId: String
+  dueDate: DateTime
+  isApproved: Boolean
+  name: String
+  priority: JobPriority
+  status: JobStatus
+}
+
+input UpdateMaterialInput {
+  category: MaterialCategory
+  lowStock: Boolean
+  minimumStock: Float
+  name: String
+  notes: String
+  price: Float
+  stockLevel: Float
+  supplier: String
+  unit: String
+}
+
+input UpdateUserInput {
+  email: String
+  firstName: String
+  isTwoFactorEnabled: Boolean
+  lastName: String
+  password: String
+  role: UserRole
+}
+
+type User {
+  createdAt: DateTime!
+  email: String!
+  firstName: String!
+  id: ID!
+  isActive: Boolean!
+  isTwoFactorEnabled: Boolean!
+  lastName: String!
+  role: UserRole!
+  updatedAt: DateTime!
+}
+
+type UserResponse {
+  createdAt: DateTime!
+  email: String!
+  firstName: String!
+  id: String!
+  lastName: String!
+  role: String!
+  updatedAt: DateTime!
+}
+
+"""User role types"""
+enum UserRole {
+  ADMIN
+  CORPORATE
+  SMALL_BUSINESS
+}
