@@ -3,6 +3,3 @@ node_modules/
 
 # Vercel CLI folder
 .vercel/
-
-# Build output
-dist/
