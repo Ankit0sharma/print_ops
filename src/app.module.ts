@@ -7,8 +7,9 @@ import { AppResolver } from './app.resolver';
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: false,
+      autoSchemaFile: true,
       sortSchema: true,
+      playground: true
     }),
   ],
   controllers: [],
