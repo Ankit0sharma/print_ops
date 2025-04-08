@@ -22,7 +22,6 @@ exports.AppModule = AppModule = __decorate([
                 autoSchemaFile: true,
                 sortSchema: true,
                 playground: true,
-                path: '/graphql',
             }),
         ],
         controllers: [],

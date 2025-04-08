@@ -10,7 +10,6 @@ import { AppResolver } from './app.resolver';
       autoSchemaFile: true,
       sortSchema: true,
       playground: true,
-      path: '/graphql',
     }),
   ],
   controllers: [],
