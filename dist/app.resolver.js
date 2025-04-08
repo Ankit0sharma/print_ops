@@ -9,30 +9,30 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AppController = void 0;
-const common_1 = require("@nestjs/common");
-let AppController = class AppController {
-    getRoot() {
-        return 'NestJS API on Vercel 🚀';
+exports.AppResolver = void 0;
+const graphql_1 = require("@nestjs/graphql");
+let AppResolver = class AppResolver {
+    hello() {
+        return 'NestJS GraphQL on Vercel 🚀';
     }
     ping() {
-        return 'pong is working on nest🏓';
+        return 'pong is working on GraphQL 🏓';
     }
 };
-exports.AppController = AppController;
+exports.AppResolver = AppResolver;
 __decorate([
-    (0, common_1.Get)(),
+    (0, graphql_1.Query)(() => String),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", String)
-], AppController.prototype, "getRoot", null);
+], AppResolver.prototype, "hello", null);
 __decorate([
-    (0, common_1.Get)('ping'),
+    (0, graphql_1.Query)(() => String),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", String)
-], AppController.prototype, "ping", null);
-exports.AppController = AppController = __decorate([
-    (0, common_1.Controller)()
-], AppController);
-//# sourceMappingURL=app.controller.js.map
+], AppResolver.prototype, "ping", null);
+exports.AppResolver = AppResolver = __decorate([
+    (0, graphql_1.Resolver)()
+], AppResolver);
+//# sourceMappingURL=app.resolver.js.map
