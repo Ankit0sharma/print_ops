@@ -19,6 +19,7 @@ const config_1 = require("@nestjs/config");
 const typeorm_1 = __importDefault(require("./config/typeorm"));
 const typeorm_2 = require("@nestjs/typeorm");
 const path_1 = require("path");
+const auth_module_1 = require("./modules/auth/auth.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -42,10 +43,11 @@ exports.AppModule = AppModule = __decorate([
             }),
             graphql_1.GraphQLModule.forRoot({
                 driver: apollo_1.ApolloDriver,
-                autoSchemaFile: true,
+                autoSchemaFile: 'schema.gql',
                 sortSchema: true,
                 playground: true,
             }),
+            auth_module_1.AuthModule,
             users_module_1.UsersModule,
         ],
         controllers: [],

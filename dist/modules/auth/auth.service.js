@@ -20,27 +20,23 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
         this.configService = configService;
     }
-    async login(loginInput) {
+    async login(username, password) {
         try {
             // Validate the user by checking the email and password
-            const user = await this.userService.validateUser(loginInput.email, loginInput.password);
+            const user = await this.userService.validateUser(username, password);
             if (!user) {
                 throw new common_1.UnauthorizedException('Invalid credentials');
             }
-            // Generate token
-            const token = await this.generateToken(user);
-            // Return both token and user information
+            // Generate JWT tokens (access and refresh)
+            const accessToken = this.generateToken(user);
+            const refreshToken = this.generateRefreshToken(user);
+            // Return response object
             return {
-                token,
-                user: {
-                    id: user.id,
-                    email: user.email,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    role: user.role,
-                    createdAt: user.createdAt,
-                    updatedAt: user.updatedAt,
-                }
+                success: true,
+                message: 'Login successful',
+                accessToken,
+                refreshToken,
+                user,
             };
         }
         catch (error) {
@@ -63,6 +59,12 @@ let AuthService = class AuthService {
             sub: user.id,
         };
         return this.jwtService.sign(payload);
+    }
+    generateRefreshToken(user) {
+        const payload = { email: user.email, sub: user.id };
+        return this.jwtService.sign(payload, {
+            expiresIn: '7d', // Set refresh token expiration time
+        });
     }
 };
 exports.AuthService = AuthService;

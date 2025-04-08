@@ -15,22 +15,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthResolver = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const auth_service_1 = require("./auth.service");
-const login_input_1 = require("./dto/login.input");
 const common_1 = require("@nestjs/common");
 const gql_auth_guard_1 = require("./guards/gql-auth.guard");
 const current_user_decorator_1 = require("./decorators/current-user.decorator");
 const user_entity_1 = require("../../entities/user.entity");
-const login_response_dto_1 = require("./dto/login-response.dto");
+const auth_response_dto_1 = require("./dto/auth.response.dto");
 let AuthResolver = class AuthResolver {
     constructor(authService) {
         this.authService = authService;
     }
-    async login(loginInput) {
-        return this.authService.login(loginInput);
+    async login(username, password) {
+        return this.authService.login(username, password);
     }
     async logout(user) {
-        // In a real application, you might want to invalidate the token
-        // or perform other cleanup tasks
         return true;
     }
     async validateToken(token) {
@@ -40,10 +37,11 @@ let AuthResolver = class AuthResolver {
 };
 exports.AuthResolver = AuthResolver;
 __decorate([
-    (0, graphql_1.Mutation)(() => login_response_dto_1.LoginResponse),
-    __param(0, (0, graphql_1.Args)('loginInput')),
+    (0, graphql_1.Mutation)(() => auth_response_dto_1.AuthResponseDto),
+    __param(0, (0, graphql_1.Args)('username', { description: 'The email of the user' })),
+    __param(1, (0, graphql_1.Args)('password')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [login_input_1.LoginInput]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], AuthResolver.prototype, "login", null);
 __decorate([
