@@ -19,7 +19,7 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             graphql_1.GraphQLModule.forRoot({
                 driver: apollo_1.ApolloDriver,
-                autoSchemaFile: 'schema.gql',
+                autoSchemaFile: false,
                 sortSchema: true,
             }),
         ],
