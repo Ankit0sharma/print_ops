@@ -8,7 +8,7 @@ import { AppResolver } from './app.resolver';
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      autoSchemaFile: 'schema.gql',
       sortSchema: true,
     }),
   ],
