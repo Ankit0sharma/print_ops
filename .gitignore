@@ -1,5 +1,8 @@
+# Node modules
 node_modules/
-.vercel
+
+# Vercel CLI folder
+.vercel/
 
 # Build output
 dist/

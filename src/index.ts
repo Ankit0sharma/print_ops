@@ -1,16 +1,8 @@
-import express, { Request, Response } from 'express'
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
 
-const app = express()
-const port = process.env.PORT || 8080
-
-app.get('/', (_req: Request, res: Response) => {
-  res.send('Express Typescript on Vercel')
-})
-
-app.get('/ping', (_req: Request, res: Response) => {
-  res.send('pong 🏓')
-})
-
-app.listen(port, () => {
-  console.log(`Server is listening on ${port}`)
-})
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  await app.listen(process.env.PORT || 3000);
+}
+bootstrap();
