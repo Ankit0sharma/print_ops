@@ -30,6 +30,7 @@ export class UserService {
       const newUser = this.userRepository.create({
         ...createUserInput,
       });
+      console.log("User created--------");
 
       return this.userRepository.save(newUser);
     } catch (error) {
