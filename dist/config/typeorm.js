@@ -1,60 +1,18 @@
 "use strict";
 // src/config/typeorm.ts
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectionSource = void 0;
 const config_1 = require("@nestjs/config");
+const dotenv_1 = require("dotenv");
 const typeorm_1 = require("typeorm");
-const dotenv = __importStar(require("dotenv"));
-const fs = __importStar(require("fs"));
-const path = __importStar(require("path"));
-// Determine which .env file to load
-const envFile = process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env';
-const envPath = path.resolve(process.cwd(), envFile);
-// Check if the file exists and load it
-if (fs.existsSync(envPath)) {
-    console.log(`Loading environment from ${envPath}`);
-    dotenv.config({ path: envPath });
-}
-else {
-    console.log(`Environment file ${envPath} not found, loading default .env`);
-    dotenv.config(); // Load default .env file
-}
-// Get database URL from environment variables
+// const envFile = process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env';
+// dotenvConfig({ path: `.env.${process.env.NODE_ENV}` });
+(0, dotenv_1.config)({ path: `.env.${process.env.NODE_ENV}` });
+// dotenvConfig({ path: `.env` });
+console.log('Loaded env variables:', process.env);
 const dbUrl = process.env.DATABASE_URL;
-console.log('DATABASE_URL from env:', process.env.DATABASE_URL);
+console.log("postgres--- ", dbUrl);
+// console.log('DATABASE_URL from env:', process.env.DATABASE_URL);
 const commonConfig = {
     type: 'postgres',
     url: dbUrl,
@@ -70,7 +28,6 @@ const commonConfig = {
         idleTimeoutMillis: 30000, // 30 seconds
     },
 };
-console.log('Database config:', commonConfig);
 const runtimeConfig = {
     ...commonConfig,
     entities: ['dist/**/*.entity{.ts,.js}'],

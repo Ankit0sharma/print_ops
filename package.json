@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "dev": "nodemon src/index.ts",
+    "dev": "NODE_ENV=development npm run build && nodemon src/index.ts",
+    "start:dev": "NODE_ENV=development nest start --watch",
     "build": "rimraf dist && tsc",
     "vercel-build": "npm install && npm run build",
     "typeorm": "ts-node ./node_modules/typeorm/cli",
