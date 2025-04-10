@@ -19,12 +19,14 @@ const customer_entity_1 = require("../../entities/customer.entity");
 const customer_enum_1 = require("../../common/enums/customer.enum");
 const create_customer_input_1 = require("./dto/create-customer.input");
 const update_customer_input_1 = require("./dto/update-customer.input");
+const filter_customer_input_1 = require("./dto/filter-customer.input");
+const sort_customer_input_1 = require("./dto/sort-customer.input");
 let CustomersResolver = class CustomersResolver {
     constructor(customersService) {
         this.customersService = customersService;
     }
-    async getAllCustomers() {
-        return this.customersService.findAll();
+    async customers(filter, sort) {
+        return this.customersService.findAll(filter, sort);
     }
     async getActiveCustomers() {
         return this.customersService.findActive();
@@ -57,10 +59,13 @@ let CustomersResolver = class CustomersResolver {
 exports.CustomersResolver = CustomersResolver;
 __decorate([
     (0, graphql_1.Query)(() => [customer_entity_1.Customer]),
+    __param(0, (0, graphql_1.Args)('filter', { nullable: true })),
+    __param(1, (0, graphql_1.Args)('sort', { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [filter_customer_input_1.FilterCustomerInput,
+        sort_customer_input_1.SortCustomerInput]),
     __metadata("design:returntype", Promise)
-], CustomersResolver.prototype, "getAllCustomers", null);
+], CustomersResolver.prototype, "customers", null);
 __decorate([
     (0, graphql_1.Query)(() => [customer_entity_1.Customer]),
     __metadata("design:type", Function),

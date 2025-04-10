@@ -18,6 +18,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const customer_entity_1 = require("../../entities/customer.entity");
 const customer_enum_1 = require("../../common/enums/customer.enum");
+const sort_customer_input_1 = require("./dto/sort-customer.input");
 let CustomersService = class CustomersService {
     constructor(customerRepository) {
         this.customerRepository = customerRepository;
@@ -36,8 +37,54 @@ let CustomersService = class CustomersService {
             throw new common_1.BadRequestException(error.message);
         }
     }
-    async findAll() {
-        return await this.customerRepository.find();
+    async findAll(filter, sort) {
+        const queryBuilder = this.customerRepository.createQueryBuilder('customer')
+            .leftJoinAndSelect('customer.jobs', 'jobs');
+        // Apply filters
+        if (filter) {
+            if (filter.status) {
+                queryBuilder.andWhere('customer.status = :status', { status: filter.status });
+            }
+            if (filter.customerType) {
+                queryBuilder.andWhere('customer.customerType = :type', { type: filter.customerType });
+            }
+            if (filter.isActive !== undefined) {
+                queryBuilder.andWhere('customer.isActive = :isActive', { isActive: filter.isActive });
+            }
+            if (filter.searchTerm) {
+                queryBuilder.andWhere('(LOWER(customer.companyName) LIKE LOWER(:search) OR '
+                    + 'LOWER(customer.firstName) LIKE LOWER(:search) OR '
+                    + 'LOWER(customer.lastName) LIKE LOWER(:search) OR '
+                    + 'LOWER(customer.email) LIKE LOWER(:search))', { search: `%${filter.searchTerm}%` });
+            }
+        }
+        // Apply sorting
+        if (sort) {
+            switch (sort.field) {
+                case sort_customer_input_1.CustomerSortField.NAME:
+                    queryBuilder.orderBy('customer.firstName', sort.order);
+                    break;
+                case sort_customer_input_1.CustomerSortField.CREATED_AT:
+                    queryBuilder.orderBy('customer.createdAt', sort.order);
+                    break;
+                case sort_customer_input_1.CustomerSortField.JOB_COUNT:
+                    queryBuilder
+                        .addSelect((subQuery) => {
+                        return subQuery
+                            .select('COUNT(jobs.id)', 'jobCount')
+                            .from('jobs', 'jobs')
+                            .where('jobs.customerId = customer.id');
+                    }, 'jobCount')
+                        .orderBy('jobCount', sort.order);
+                    break;
+                default:
+                    queryBuilder.orderBy('customer.firstName', sort_customer_input_1.SortOrder.ASC);
+            }
+        }
+        else {
+            queryBuilder.orderBy('customer.firstName', sort_customer_input_1.SortOrder.ASC);
+        }
+        return await queryBuilder.getMany();
     }
     async findByEmail(email) {
         return await this.customerRepository.findOne({ where: { email } });

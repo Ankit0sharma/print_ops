@@ -1,10 +1,12 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { Customer } from '../../entities/customer.entity';
 import { CustomerType, CustomerStatus } from '../../common/enums/customer.enum';
 import { CreateCustomerInput } from './dto/create-customer.input';
 import { UpdateCustomerInput } from './dto/update-customer.input';
+import { FilterCustomerInput } from './dto/filter-customer.input';
+import { SortCustomerInput, CustomerSortField, SortOrder } from './dto/sort-customer.input';
 
 @Injectable()
 export class CustomersService {
@@ -28,8 +30,59 @@ export class CustomersService {
     }
   }
 
-  async findAll(): Promise<Customer[]> {
-    return await this.customerRepository.find();
+  async findAll(filter?: FilterCustomerInput, sort?: SortCustomerInput): Promise<Customer[]> {
+    const queryBuilder = this.customerRepository.createQueryBuilder('customer')
+      .leftJoinAndSelect('customer.jobs', 'jobs');
+
+    // Apply filters
+    if (filter) {
+      if (filter.status) {
+        queryBuilder.andWhere('customer.status = :status', { status: filter.status });
+      }
+      if (filter.customerType) {
+        queryBuilder.andWhere('customer.customerType = :type', { type: filter.customerType });
+      }
+      if (filter.isActive !== undefined) {
+        queryBuilder.andWhere('customer.isActive = :isActive', { isActive: filter.isActive });
+      }
+      if (filter.searchTerm) {
+        queryBuilder.andWhere(
+          '(LOWER(customer.companyName) LIKE LOWER(:search) OR '
+          + 'LOWER(customer.firstName) LIKE LOWER(:search) OR '
+          + 'LOWER(customer.lastName) LIKE LOWER(:search) OR '
+          + 'LOWER(customer.email) LIKE LOWER(:search))',
+          { search: `%${filter.searchTerm}%` }
+        );
+      }
+    }
+
+    // Apply sorting
+    if (sort) {
+      switch (sort.field) {
+        case CustomerSortField.NAME:
+          queryBuilder.orderBy('customer.firstName', sort.order);
+          break;
+        case CustomerSortField.CREATED_AT:
+          queryBuilder.orderBy('customer.createdAt', sort.order);
+          break;
+        case CustomerSortField.JOB_COUNT:
+          queryBuilder
+            .addSelect((subQuery) => {
+              return subQuery
+                .select('COUNT(jobs.id)', 'jobCount')
+                .from('jobs', 'jobs')
+                .where('jobs.customerId = customer.id');
+            }, 'jobCount')
+            .orderBy('jobCount', sort.order);
+          break;
+        default:
+          queryBuilder.orderBy('customer.firstName', SortOrder.ASC);
+      }
+    } else {
+      queryBuilder.orderBy('customer.firstName', SortOrder.ASC);
+    }
+
+    return await queryBuilder.getMany();
   }
 
   async findByEmail(email: string): Promise<Customer | null> {

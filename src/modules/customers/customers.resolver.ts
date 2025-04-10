@@ -4,14 +4,19 @@ import { Customer } from '../../entities/customer.entity';
 import { CustomerType, CustomerStatus } from '../../common/enums/customer.enum';
 import { CreateCustomerInput } from './dto/create-customer.input';
 import { UpdateCustomerInput } from './dto/update-customer.input';
+import { FilterCustomerInput } from './dto/filter-customer.input';
+import { SortCustomerInput } from './dto/sort-customer.input';
 
 @Resolver(() => Customer)
 export class CustomersResolver {
   constructor(private readonly customersService: CustomersService) {}
 
   @Query(() => [Customer])
-  async getAllCustomers(): Promise<Customer[]> {
-    return this.customersService.findAll();
+  async customers(
+    @Args('filter', { nullable: true }) filter?: FilterCustomerInput,
+    @Args('sort', { nullable: true }) sort?: SortCustomerInput
+  ): Promise<Customer[]> {
+    return this.customersService.findAll(filter, sort);
   }
 
   @Query(() => [Customer])
