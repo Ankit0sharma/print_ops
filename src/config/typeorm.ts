@@ -30,4 +30,5 @@ export default registerAs('typeorm', () => runtimeConfig);
 export const connectionSource = new DataSource({
     ...commonConfig,
     entities: ['src/**/*.entity{.ts,.js}'],
+    migrations: ['src/migrations/*{.ts,.js}'],
   } as DataSourceOptions);

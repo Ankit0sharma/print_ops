@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateJobInput = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const class_validator_1 = require("class-validator");
-const job_entity_1 = require("../../../entities/job.entity");
+const job_enum_1 = require("../../../common/enums/job.enum");
 const class_transformer_1 = require("class-transformer");
 let CreateJobInput = class CreateJobInput {
 };
@@ -21,36 +21,61 @@ __decorate([
     (0, graphql_1.Field)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateJobInput.prototype, "jobNumber", void 0);
-__decorate([
-    (0, graphql_1.Field)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
 ], CreateJobInput.prototype, "name", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => job_entity_1.JobStatus, { defaultValue: job_entity_1.JobStatus.DESIGN }),
-    (0, class_validator_1.IsEnum)(job_entity_1.JobStatus),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], CreateJobInput.prototype, "status", void 0);
-__decorate([
-    (0, graphql_1.Field)(() => job_entity_1.JobPriority, { defaultValue: job_entity_1.JobPriority.NORMAL }),
-    (0, class_validator_1.IsEnum)(job_entity_1.JobPriority),
+    (0, graphql_1.Field)(() => job_enum_1.JobPriority, { defaultValue: job_enum_1.JobPriority.NORMAL }),
+    (0, class_validator_1.IsEnum)(job_enum_1.JobPriority),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateJobInput.prototype, "priority", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => graphql_1.GraphQLISODateTime, { nullable: true }),
+    (0, graphql_1.Field)(() => graphql_1.GraphQLISODateTime),
     (0, class_transformer_1.Type)(() => Date),
     (0, class_validator_1.IsDate)(),
-    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Date)
 ], CreateJobInput.prototype, "dueDate", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => graphql_1.Float),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], CreateJobInput.prototype, "width", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => graphql_1.Float),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], CreateJobInput.prototype, "height", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => graphql_1.Float, { defaultValue: 1 }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateJobInput.prototype, "quantity", void 0);
+__decorate([
+    (0, graphql_1.Field)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateJobInput.prototype, "printMaterial", void 0);
 __decorate([
     (0, graphql_1.Field)({ nullable: true }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], CreateJobInput.prototype, "assignedTo", void 0);
+], CreateJobInput.prototype, "laminateMaterial", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateJobInput.prototype, "description", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateJobInput.prototype, "productionNotes", void 0);
 __decorate([
     (0, graphql_1.Field)(),
     (0, class_validator_1.IsUUID)(),
@@ -58,10 +83,16 @@ __decorate([
     __metadata("design:type", String)
 ], CreateJobInput.prototype, "customerId", void 0);
 __decorate([
-    (0, graphql_1.Field)({ defaultValue: false }),
+    (0, graphql_1.Field)(() => job_enum_1.JobStatus, { defaultValue: job_enum_1.JobStatus.DESIGN }),
+    (0, class_validator_1.IsEnum)(job_enum_1.JobStatus),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], CreateJobInput.prototype, "isApproved", void 0);
+    __metadata("design:type", String)
+], CreateJobInput.prototype, "status", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateJobInput.prototype, "assignedTo", void 0);
 exports.CreateJobInput = CreateJobInput = __decorate([
     (0, graphql_1.InputType)()
 ], CreateJobInput);

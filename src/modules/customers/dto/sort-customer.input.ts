@@ -1,25 +1,15 @@
 import { InputType, Field, registerEnumType } from '@nestjs/graphql';
 import { IsEnum, IsOptional } from 'class-validator';
-
-export enum SortOrder {
-  ASC = 'ASC',
-  DESC = 'DESC'
-}
+import { SortOrder } from '../../../common/enums/sort.enum';
 
 export enum CustomerSortField {
   NAME = 'name',
-  CREATED_AT = 'createdAt',
-  JOB_COUNT = 'jobCount'
+  EMAIL = 'email'
 }
-
-registerEnumType(SortOrder, {
-  name: 'SortOrder',
-  description: 'Sort order options'
-});
 
 registerEnumType(CustomerSortField, {
   name: 'CustomerSortField',
-  description: 'Customer sort field options'
+  description: 'Fields that can be sorted on customers'
 });
 
 @InputType()

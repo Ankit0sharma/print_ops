@@ -28,5 +28,6 @@ exports.default = (0, config_1.registerAs)('typeorm', () => runtimeConfig);
 exports.connectionSource = new typeorm_1.DataSource({
     ...commonConfig,
     entities: ['src/**/*.entity{.ts,.js}'],
+    migrations: ['src/migrations/*{.ts,.js}'],
 });
 //# sourceMappingURL=typeorm.js.map

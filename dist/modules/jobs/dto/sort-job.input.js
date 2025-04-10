@@ -9,39 +9,41 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SortCustomerInput = exports.CustomerSortField = void 0;
+exports.SortJobInput = exports.JobSortField = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const class_validator_1 = require("class-validator");
 const sort_enum_1 = require("../../../common/enums/sort.enum");
-var CustomerSortField;
-(function (CustomerSortField) {
-    CustomerSortField["NAME"] = "name";
-    CustomerSortField["EMAIL"] = "email";
-})(CustomerSortField || (exports.CustomerSortField = CustomerSortField = {}));
-(0, graphql_1.registerEnumType)(CustomerSortField, {
-    name: 'CustomerSortField',
-    description: 'Fields that can be sorted on customers'
+var JobSortField;
+(function (JobSortField) {
+    JobSortField["CREATED_AT"] = "createdAt";
+    JobSortField["UPDATED_AT"] = "updatedAt";
+    JobSortField["DUE_DATE"] = "dueDate";
+    JobSortField["NAME"] = "name";
+    JobSortField["PRIORITY"] = "priority";
+    JobSortField["STATUS"] = "status";
+})(JobSortField || (exports.JobSortField = JobSortField = {}));
+(0, graphql_1.registerEnumType)(JobSortField, {
+    name: 'JobSortField',
+    description: 'Fields that can be sorted on jobs'
 });
-let SortCustomerInput = class SortCustomerInput {
+let SortJobInput = class SortJobInput {
     constructor() {
-        this.field = CustomerSortField.NAME;
-        this.order = sort_enum_1.SortOrder.ASC;
+        this.field = JobSortField.CREATED_AT;
+        this.order = sort_enum_1.SortOrder.DESC;
     }
 };
-exports.SortCustomerInput = SortCustomerInput;
+exports.SortJobInput = SortJobInput;
 __decorate([
-    (0, graphql_1.Field)(() => CustomerSortField, { nullable: true }),
-    (0, class_validator_1.IsEnum)(CustomerSortField),
-    (0, class_validator_1.IsOptional)(),
+    (0, graphql_1.Field)(() => JobSortField),
+    (0, class_validator_1.IsEnum)(JobSortField),
     __metadata("design:type", String)
-], SortCustomerInput.prototype, "field", void 0);
+], SortJobInput.prototype, "field", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => sort_enum_1.SortOrder, { nullable: true }),
+    (0, graphql_1.Field)(() => sort_enum_1.SortOrder),
     (0, class_validator_1.IsEnum)(sort_enum_1.SortOrder),
-    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], SortCustomerInput.prototype, "order", void 0);
-exports.SortCustomerInput = SortCustomerInput = __decorate([
+], SortJobInput.prototype, "order", void 0);
+exports.SortJobInput = SortJobInput = __decorate([
     (0, graphql_1.InputType)()
-], SortCustomerInput);
-//# sourceMappingURL=sort-customer.input.js.map
+], SortJobInput);
+//# sourceMappingURL=sort-job.input.js.map

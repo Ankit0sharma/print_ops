@@ -1,44 +1,70 @@
-import { InputType, Field, GraphQLISODateTime } from '@nestjs/graphql';
-import { IsNotEmpty, IsEnum, IsOptional, IsDate, IsUUID } from 'class-validator';
-import { JobStatus, JobPriority } from '../../../entities/job.entity';
+import { InputType, Field, GraphQLISODateTime, Float } from '@nestjs/graphql';
+import { IsNotEmpty, IsEnum, IsOptional, IsDate, IsUUID, IsNumber, Min } from 'class-validator';
+import { JobStatus, JobPriority } from '../../../common/enums/job.enum';
 import { Type } from 'class-transformer';
 
 @InputType()
 export class CreateJobInput {
   @Field()
   @IsNotEmpty()
-  jobNumber: string;
-
-  @Field()
-  @IsNotEmpty()
   name: string;
-
-  @Field(() => JobStatus, { defaultValue: JobStatus.DESIGN })
-  @IsEnum(JobStatus)
-  @IsOptional()
-  status: JobStatus;
 
   @Field(() => JobPriority, { defaultValue: JobPriority.NORMAL })
   @IsEnum(JobPriority)
   @IsOptional()
   priority: JobPriority;
 
-  @Field(() => GraphQLISODateTime, { nullable: true })
+  @Field(() => GraphQLISODateTime)
   @Type(() => Date)
   @IsDate()
+  @IsNotEmpty()
+  dueDate: Date;
+
+  @Field(() => Float)
+  @IsNumber()
+  @Min(0)
+  @IsNotEmpty()
+  width: number;
+
+  @Field(() => Float)
+  @IsNumber()
+  @Min(0)
+  @IsNotEmpty()
+  height: number;
+
+  @Field(() => Float, { defaultValue: 1 })
+  @IsNumber()
+  @Min(1)
   @IsOptional()
-  dueDate?: Date;
+  quantity: number;
+
+  @Field()
+  @IsNotEmpty()
+  printMaterial: string;
 
   @Field({ nullable: true })
   @IsOptional()
-  assignedTo?: string;
+  laminateMaterial?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  description?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  productionNotes?: string;
 
   @Field()
   @IsUUID()
   @IsNotEmpty()
   customerId: string;
 
-  @Field({ defaultValue: false })
+  @Field(() => JobStatus, { defaultValue: JobStatus.DESIGN })
+  @IsEnum(JobStatus)
   @IsOptional()
-  isApproved: boolean;
+  status: JobStatus;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  assignedTo?: string;
 }

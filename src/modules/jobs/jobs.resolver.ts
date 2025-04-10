@@ -1,35 +1,35 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { JobService } from './jobs.service';
+import { Resolver, Query, Mutation, Args, ID, Int } from '@nestjs/graphql';
 import { Job } from '../../entities/job.entity';
+import { JobStatus } from '../../common/enums/job.enum';
+import { JobService } from './jobs.service';
 import { CreateJobInput } from './dto/create-job.input';
 import { UpdateJobInput } from './dto/update-job.input';
+import { FilterJobInput } from './dto/filter-job.input';
+import { SortJobInput } from './dto/sort-job.input';
 
 @Resolver(() => Job)
 export class JobResolver {
   constructor(private readonly jobService: JobService) {}
 
   @Query(() => [Job])
-  async getAllJobs(): Promise<Job[]> {
-    return this.jobService.findAll();
+  async jobs(
+    @Args('filter', { nullable: true }) filter?: FilterJobInput,
+    @Args('sort', { nullable: true }) sort?: SortJobInput,
+  ): Promise<Job[]> {
+    return this.jobService.findAll(filter, sort);
   }
 
-  @Query(() => [Job])
-  async getJobsByStatus(@Args('status') status: string): Promise<Job[]> {
-    return this.jobService.findByStatus(status);
-  }
+
 
   @Query(() => [Job])
-  async getJobsByCustomer(@Args('customerId') customerId: string): Promise<Job[]> {
-    return this.jobService.findByCustomer(customerId);
-  }
-
-  @Query(() => [Job])
-  async getUpcomingJobs(@Args('days', { type: () => Int }) days: number): Promise<Job[]> {
+  async upcomingJobs(
+    @Args('days', { type: () => Int, defaultValue: 7 }) days: number
+  ): Promise<Job[]> {
     return this.jobService.findUpcoming(days);
   }
 
   @Query(() => Job)
-  async getJob(@Args('id') id: string): Promise<Job> {
+  async job(@Args('id', { type: () => ID }) id: string): Promise<Job> {
     return this.jobService.findOne(id);
   }
 
@@ -42,7 +42,7 @@ export class JobResolver {
 
   @Mutation(() => Job)
   async updateJob(
-    @Args('id') id: string,
+    @Args('id', { type: () => ID }) id: string,
     @Args('updateJobInput') updateJobInput: UpdateJobInput,
   ): Promise<Job> {
     return this.jobService.updateJob(id, updateJobInput);

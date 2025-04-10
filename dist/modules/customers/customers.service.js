@@ -19,6 +19,7 @@ const typeorm_2 = require("typeorm");
 const customer_entity_1 = require("../../entities/customer.entity");
 const customer_enum_1 = require("../../common/enums/customer.enum");
 const sort_customer_input_1 = require("./dto/sort-customer.input");
+const sort_enum_1 = require("../../common/enums/sort.enum");
 let CustomersService = class CustomersService {
     constructor(customerRepository) {
         this.customerRepository = customerRepository;
@@ -64,25 +65,15 @@ let CustomersService = class CustomersService {
                 case sort_customer_input_1.CustomerSortField.NAME:
                     queryBuilder.orderBy('customer.firstName', sort.order);
                     break;
-                case sort_customer_input_1.CustomerSortField.CREATED_AT:
-                    queryBuilder.orderBy('customer.createdAt', sort.order);
-                    break;
-                case sort_customer_input_1.CustomerSortField.JOB_COUNT:
-                    queryBuilder
-                        .addSelect((subQuery) => {
-                        return subQuery
-                            .select('COUNT(jobs.id)', 'jobCount')
-                            .from('jobs', 'jobs')
-                            .where('jobs.customerId = customer.id');
-                    }, 'jobCount')
-                        .orderBy('jobCount', sort.order);
+                case sort_customer_input_1.CustomerSortField.EMAIL:
+                    queryBuilder.orderBy('customer.email', sort.order);
                     break;
                 default:
-                    queryBuilder.orderBy('customer.firstName', sort_customer_input_1.SortOrder.ASC);
+                    queryBuilder.orderBy('customer.firstName', sort_enum_1.SortOrder.ASC);
             }
         }
         else {
-            queryBuilder.orderBy('customer.firstName', sort_customer_input_1.SortOrder.ASC);
+            queryBuilder.orderBy('customer.firstName', sort_enum_1.SortOrder.ASC);
         }
         return await queryBuilder.getMany();
     }

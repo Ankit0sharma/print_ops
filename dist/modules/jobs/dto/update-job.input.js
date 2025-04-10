@@ -12,8 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateJobInput = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const class_validator_1 = require("class-validator");
-const job_entity_1 = require("../../../entities/job.entity");
 const class_transformer_1 = require("class-transformer");
+const job_enum_1 = require("../../../common/enums/job.enum");
 let UpdateJobInput = class UpdateJobInput {
 };
 exports.UpdateJobInput = UpdateJobInput;
@@ -23,17 +23,59 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateJobInput.prototype, "name", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => job_entity_1.JobStatus, { nullable: true }),
-    (0, class_validator_1.IsEnum)(job_entity_1.JobStatus),
+    (0, graphql_1.Field)(() => job_enum_1.JobStatus, { nullable: true }),
+    (0, class_validator_1.IsEnum)(job_enum_1.JobStatus),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateJobInput.prototype, "status", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => job_entity_1.JobPriority, { nullable: true }),
-    (0, class_validator_1.IsEnum)(job_entity_1.JobPriority),
+    (0, graphql_1.Field)(() => job_enum_1.JobPriority, { nullable: true }),
+    (0, class_validator_1.IsEnum)(job_enum_1.JobPriority),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateJobInput.prototype, "priority", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => graphql_1.Float, { nullable: true }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateJobInput.prototype, "width", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => graphql_1.Float, { nullable: true }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateJobInput.prototype, "height", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => graphql_1.Float, { nullable: true }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], UpdateJobInput.prototype, "quantity", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateJobInput.prototype, "printMaterial", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateJobInput.prototype, "laminateMaterial", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateJobInput.prototype, "description", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateJobInput.prototype, "productionNotes", void 0);
 __decorate([
     (0, graphql_1.Field)(() => graphql_1.GraphQLISODateTime, { nullable: true }),
     (0, class_transformer_1.Type)(() => Date),
