@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 export enum UserRole {
   CORPORATE = 'corporate',
   SMALL_BUSINESS = 'small_business',
-  ADMIN = 'admin', // Adding new role for admin
+  ADMIN = 'admin',
 }
 
 registerEnumType(UserRole, {

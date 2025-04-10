@@ -18,8 +18,8 @@ exports.CustomerModule = CustomerModule;
 exports.CustomerModule = CustomerModule = __decorate([
     (0, common_1.Module)({
         imports: [typeorm_1.TypeOrmModule.forFeature([customer_entity_1.Customer])],
-        providers: [customers_service_1.CustomerService, customers_resolver_1.CustomerResolver],
-        exports: [customers_service_1.CustomerService],
+        providers: [customers_service_1.CustomersService, customers_resolver_1.CustomersResolver],
+        exports: [customers_service_1.CustomersService],
     })
 ], CustomerModule);
 //# sourceMappingURL=customers.module.js.map

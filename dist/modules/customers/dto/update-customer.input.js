@@ -20,12 +20,59 @@ __decorate([
     (0, graphql_1.Field)({ nullable: true }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], UpdateCustomerInput.prototype, "name", void 0);
+], UpdateCustomerInput.prototype, "companyName", void 0);
 __decorate([
     (0, graphql_1.Field)({ nullable: true }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], UpdateCustomerInput.prototype, "contactPerson", void 0);
+], UpdateCustomerInput.prototype, "website", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateCustomerInput.prototype, "address", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateCustomerInput.prototype, "city", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateCustomerInput.prototype, "state", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateCustomerInput.prototype, "zipCode", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateCustomerInput.prototype, "notes", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => customer_entity_1.CustomerStatus, { nullable: true }),
+    (0, class_validator_1.IsEnum)(customer_entity_1.CustomerStatus),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateCustomerInput.prototype, "status", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => customer_entity_1.CustomerType, { nullable: true }),
+    (0, class_validator_1.IsEnum)(customer_entity_1.CustomerType),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateCustomerInput.prototype, "customerType", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateCustomerInput.prototype, "firstName", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateCustomerInput.prototype, "lastName", void 0);
 __decorate([
     (0, graphql_1.Field)({ nullable: true }),
     (0, class_validator_1.IsEmail)(),
@@ -38,23 +85,10 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateCustomerInput.prototype, "phone", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => customer_entity_1.CustomerType, { nullable: true }),
-    (0, class_validator_1.IsEnum)(customer_entity_1.CustomerType),
+    (0, graphql_1.Field)({ nullable: true }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], UpdateCustomerInput.prototype, "type", void 0);
-__decorate([
-    (0, graphql_1.Field)({ nullable: true }),
-    (0, class_validator_1.IsBoolean)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], UpdateCustomerInput.prototype, "isActive", void 0);
-__decorate([
-    (0, graphql_1.Field)({ nullable: true }),
-    (0, class_validator_1.IsBoolean)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], UpdateCustomerInput.prototype, "isFavorite", void 0);
+], UpdateCustomerInput.prototype, "jobTitle", void 0);
 exports.UpdateCustomerInput = UpdateCustomerInput = __decorate([
     (0, graphql_1.InputType)()
 ], UpdateCustomerInput);

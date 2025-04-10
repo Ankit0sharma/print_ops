@@ -1,16 +1,54 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { IsEmail, IsNotEmpty, IsEnum, IsOptional, IsBoolean } from 'class-validator';
-import { CustomerType } from '../../../entities/customer.entity';
+import { IsEmail, IsNotEmpty, IsEnum, IsOptional, IsString } from 'class-validator';
+import { CustomerType, CustomerStatus } from '../../../entities/customer.entity';
 
 @InputType()
 export class CreateCustomerInput {
   @Field()
   @IsNotEmpty()
-  name: string;
+  companyName: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  website?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  address?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  city?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  state?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  zipCode?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  notes?: string;
+
+  @Field(() => CustomerStatus)
+  @IsEnum(CustomerStatus)
+  @IsOptional()
+  status?: CustomerStatus;
+
+  @Field(() => CustomerType)
+  @IsEnum(CustomerType)
+  @IsNotEmpty()
+  customerType: CustomerType;
 
   @Field()
   @IsNotEmpty()
-  contactPerson: string;
+  firstName: string;
+
+  @Field()
+  @IsNotEmpty()
+  lastName: string;
 
   @Field()
   @IsEmail()
@@ -21,18 +59,7 @@ export class CreateCustomerInput {
   @IsNotEmpty()
   phone: string;
 
-  @Field(() => CustomerType)
-  @IsEnum(CustomerType)
-  @IsNotEmpty()
-  type: CustomerType;
-
-  @Field({ defaultValue: true })
-  @IsBoolean()
+  @Field({ nullable: true })
   @IsOptional()
-  isActive: boolean;
-
-  @Field({ defaultValue: false })
-  @IsBoolean()
-  @IsOptional()
-  isFavorite: boolean;
+  jobTitle?: string;
 }
