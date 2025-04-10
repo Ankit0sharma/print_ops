@@ -1,6 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
-import * as bcrypt from 'bcryptjs';
 
 export enum UserRole {
   CORPORATE = 'corporate',
@@ -61,17 +60,4 @@ export class User {
   @Field()
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async hashPassword() {
-    if (this.password) {
-      const salt = await bcrypt.genSalt(10);
-      this.password = await bcrypt.hash(this.password, salt);
-    }
-  }
-
-  async validatePassword(password: string): Promise<boolean> {
-    return bcrypt.compare(password, this.password);
-  }
 }
