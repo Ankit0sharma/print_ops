@@ -57,7 +57,7 @@ export class UserService {
       throw new BadRequestException('Invalid credentials');
     }
 
-    if(password !== user.password){
+    if (password !== user.password) {
       throw new BadRequestException('Invalid credentials');
     }
 
