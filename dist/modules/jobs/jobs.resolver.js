@@ -14,27 +14,23 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JobResolver = void 0;
 const graphql_1 = require("@nestjs/graphql");
-const jobs_service_1 = require("./jobs.service");
 const job_entity_1 = require("../../entities/job.entity");
+const jobs_service_1 = require("./jobs.service");
 const create_job_input_1 = require("./dto/create-job.input");
 const update_job_input_1 = require("./dto/update-job.input");
+const filter_job_input_1 = require("./dto/filter-job.input");
+const sort_job_input_1 = require("./dto/sort-job.input");
 let JobResolver = class JobResolver {
     constructor(jobService) {
         this.jobService = jobService;
     }
-    async getAllJobs() {
-        return this.jobService.findAll();
+    async jobs(filter, sort) {
+        return this.jobService.findAll(filter, sort);
     }
-    async getJobsByStatus(status) {
-        return this.jobService.findByStatus(status);
-    }
-    async getJobsByCustomer(customerId) {
-        return this.jobService.findByCustomer(customerId);
-    }
-    async getUpcomingJobs(days) {
+    async upcomingJobs(days) {
         return this.jobService.findUpcoming(days);
     }
-    async getJob(id) {
+    async job(id) {
         return this.jobService.findOne(id);
     }
     async createJob(createJobInput) {
@@ -53,38 +49,27 @@ let JobResolver = class JobResolver {
 exports.JobResolver = JobResolver;
 __decorate([
     (0, graphql_1.Query)(() => [job_entity_1.Job]),
+    __param(0, (0, graphql_1.Args)('filter', { nullable: true })),
+    __param(1, (0, graphql_1.Args)('sort', { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [filter_job_input_1.FilterJobInput,
+        sort_job_input_1.SortJobInput]),
     __metadata("design:returntype", Promise)
-], JobResolver.prototype, "getAllJobs", null);
+], JobResolver.prototype, "jobs", null);
 __decorate([
     (0, graphql_1.Query)(() => [job_entity_1.Job]),
-    __param(0, (0, graphql_1.Args)('status')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], JobResolver.prototype, "getJobsByStatus", null);
-__decorate([
-    (0, graphql_1.Query)(() => [job_entity_1.Job]),
-    __param(0, (0, graphql_1.Args)('customerId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], JobResolver.prototype, "getJobsByCustomer", null);
-__decorate([
-    (0, graphql_1.Query)(() => [job_entity_1.Job]),
-    __param(0, (0, graphql_1.Args)('days', { type: () => graphql_1.Int })),
+    __param(0, (0, graphql_1.Args)('days', { type: () => graphql_1.Int, defaultValue: 7 })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
-], JobResolver.prototype, "getUpcomingJobs", null);
+], JobResolver.prototype, "upcomingJobs", null);
 __decorate([
     (0, graphql_1.Query)(() => job_entity_1.Job),
-    __param(0, (0, graphql_1.Args)('id')),
+    __param(0, (0, graphql_1.Args)('id', { type: () => graphql_1.ID })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], JobResolver.prototype, "getJob", null);
+], JobResolver.prototype, "job", null);
 __decorate([
     (0, graphql_1.Mutation)(() => job_entity_1.Job),
     __param(0, (0, graphql_1.Args)('createJobInput')),
@@ -94,7 +79,7 @@ __decorate([
 ], JobResolver.prototype, "createJob", null);
 __decorate([
     (0, graphql_1.Mutation)(() => job_entity_1.Job),
-    __param(0, (0, graphql_1.Args)('id')),
+    __param(0, (0, graphql_1.Args)('id', { type: () => graphql_1.ID })),
     __param(1, (0, graphql_1.Args)('updateJobInput')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, update_job_input_1.UpdateJobInput]),

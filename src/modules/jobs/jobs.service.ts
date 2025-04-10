@@ -1,9 +1,12 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Repository, Between, Not, IsNull, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { Job } from '../../entities/job.entity';
+import { JobStatus } from '../../common/enums/job.enum';
 import { CreateJobInput } from './dto/create-job.input';
 import { UpdateJobInput } from './dto/update-job.input';
+import { FilterJobInput } from './dto/filter-job.input';
+import { SortJobInput } from './dto/sort-job.input';
 
 @Injectable()
 export class JobService {
@@ -14,36 +17,67 @@ export class JobService {
 
   // Create a new job
   async createJob(createJobInput: CreateJobInput): Promise<Job> {
+    const job = this.jobRepository.create({
+      ...createJobInput,
+      status: JobStatus.DESIGN
+    });
+    
     try {
-      // Check if job number already exists
-      const existingJob = await this.jobRepository.findOne({
-        where: { jobNumber: createJobInput.jobNumber },
+      const savedJob = await this.jobRepository.save(job);
+      // Load the job with customer relation
+      return await this.jobRepository.findOne({
+        where: { id: savedJob.id },
+        relations: ['customer']
       });
-
-      if (existingJob) {
-        throw new BadRequestException('Job number already exists');
-      }
-
-      const newJob = this.jobRepository.create(createJobInput);
-      return this.jobRepository.save(newJob);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw new Error(`Failed to create job: ${error.message}`);
     }
   }
 
   // Find all jobs
-  async findAll(): Promise<Job[]> {
-    return this.jobRepository.find({
-      relations: ['customer'],
-    });
-  }
+  async findAll(filter?: FilterJobInput, sort?: SortJobInput): Promise<Job[]> {
+    const queryBuilder = this.jobRepository.createQueryBuilder('job')
+      .leftJoinAndSelect('job.customer', 'customer');
 
-  // Find jobs by status
-  async findByStatus(status: string): Promise<Job[]> {
-    return this.jobRepository.find({
-      where: { status: status as any },
-      relations: ['customer'],
-    });
+    if (filter) {
+      if (filter.status) {
+        queryBuilder.andWhere('job.status = :status', { status: filter.status });
+      }
+      if (filter.priority) {
+        queryBuilder.andWhere('job.priority = :priority', { priority: filter.priority });
+      }
+      if (filter.dueDateFrom) {
+        queryBuilder.andWhere('job.dueDate >= :dueDateFrom', { dueDateFrom: filter.dueDateFrom });
+      }
+      if (filter.dueDateTo) {
+        queryBuilder.andWhere('job.dueDate <= :dueDateTo', { dueDateTo: filter.dueDateTo });
+      }
+      if (filter.customerId) {
+        queryBuilder.andWhere('job.customerId = :customerId', { customerId: filter.customerId });
+      }
+      if (filter.assignedTo) {
+        queryBuilder.andWhere('job.assignedTo = :assignedTo', { assignedTo: filter.assignedTo });
+      }
+      if (filter.searchTerm) {
+        queryBuilder.andWhere('(job.name ILIKE :search OR job.description ILIKE :search)', 
+          { search: `%${filter.searchTerm}%` });
+      }
+      if (filter.isActive !== undefined) {
+        if (filter.isActive) {
+          queryBuilder.andWhere('job.status != :completedStatus', { completedStatus: JobStatus.COMPLETED });
+        } else {
+          queryBuilder.andWhere('job.status = :completedStatus', { completedStatus: JobStatus.COMPLETED });
+        }
+      }
+    }
+
+    if (sort) {
+      queryBuilder.orderBy(`job.${sort.field}`, sort.order);
+    } else {
+      queryBuilder.orderBy('job.createdAt', 'DESC');
+    }
+
+    return queryBuilder.getMany();
   }
 
   // Find jobs by customer
@@ -51,6 +85,17 @@ export class JobService {
     return this.jobRepository.find({
       where: { customerId },
       relations: ['customer'],
+    });
+  }
+
+  // Find active (non-completed) jobs
+  async findActive(): Promise<Job[]> {
+    return this.jobRepository.find({
+      where: {
+        status: Not(JobStatus.COMPLETED)
+      },
+      relations: ['customer'],
+      order: { dueDate: 'ASC' }
     });
   }
 
@@ -72,25 +117,30 @@ export class JobService {
   async findOne(id: string): Promise<Job> {
     const job = await this.jobRepository.findOne({
       where: { id },
-      relations: ['customer'],
+      relations: ['customer']
     });
-    
+
     if (!job) {
-      throw new NotFoundException('Job not found');
+      throw new NotFoundException(`Job with ID ${id} not found`);
     }
-    
+
     return job;
   }
 
   // Update a job
   async updateJob(id: string, updateJobInput: UpdateJobInput): Promise<Job> {
+    const job = await this.findOne(id);
+
+    // Update the job with new values
+    const updatedJob = {
+      ...job,
+      ...updateJobInput
+    };
+
     try {
-      const job = await this.findOne(id);
-      
-      Object.assign(job, updateJobInput);
-      return this.jobRepository.save(job);
+      return await this.jobRepository.save(updatedJob);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw new Error(`Failed to update job: ${error.message}`);
     }
   }
 

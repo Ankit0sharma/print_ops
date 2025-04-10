@@ -6,7 +6,8 @@ import { CustomerType, CustomerStatus } from '../../common/enums/customer.enum';
 import { CreateCustomerInput } from './dto/create-customer.input';
 import { UpdateCustomerInput } from './dto/update-customer.input';
 import { FilterCustomerInput } from './dto/filter-customer.input';
-import { SortCustomerInput, CustomerSortField, SortOrder } from './dto/sort-customer.input';
+import { SortCustomerInput, CustomerSortField } from './dto/sort-customer.input';
+import { SortOrder } from '../../common/enums/sort.enum';
 
 @Injectable()
 export class CustomersService {
@@ -62,18 +63,8 @@ export class CustomersService {
         case CustomerSortField.NAME:
           queryBuilder.orderBy('customer.firstName', sort.order);
           break;
-        case CustomerSortField.CREATED_AT:
-          queryBuilder.orderBy('customer.createdAt', sort.order);
-          break;
-        case CustomerSortField.JOB_COUNT:
-          queryBuilder
-            .addSelect((subQuery) => {
-              return subQuery
-                .select('COUNT(jobs.id)', 'jobCount')
-                .from('jobs', 'jobs')
-                .where('jobs.customerId = customer.id');
-            }, 'jobCount')
-            .orderBy('jobCount', sort.order);
+        case CustomerSortField.EMAIL:
+          queryBuilder.orderBy('customer.email', sort.order);
           break;
         default:
           queryBuilder.orderBy('customer.firstName', SortOrder.ASC);

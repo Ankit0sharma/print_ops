@@ -9,32 +9,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Job = exports.JobPriority = exports.JobStatus = void 0;
+exports.Job = void 0;
 const typeorm_1 = require("typeorm");
 const graphql_1 = require("@nestjs/graphql");
 const customer_entity_1 = require("./customer.entity");
-var JobStatus;
-(function (JobStatus) {
-    JobStatus["DESIGN"] = "design";
-    JobStatus["PRODUCTION"] = "production";
-    JobStatus["PRINT"] = "print";
-    JobStatus["APPROVAL"] = "approval";
-    JobStatus["COMPLETED"] = "completed";
-})(JobStatus || (exports.JobStatus = JobStatus = {}));
-var JobPriority;
-(function (JobPriority) {
-    JobPriority["HIGH"] = "high";
-    JobPriority["NORMAL"] = "normal";
-    JobPriority["URGENT"] = "urgent";
-})(JobPriority || (exports.JobPriority = JobPriority = {}));
-(0, graphql_1.registerEnumType)(JobStatus, {
-    name: 'JobStatus',
-    description: 'Job status types',
-});
-(0, graphql_1.registerEnumType)(JobPriority, {
-    name: 'JobPriority',
-    description: 'Job priority levels',
-});
+const job_enum_1 = require("../common/enums/job.enum");
 let Job = class Job {
 };
 exports.Job = Job;
@@ -47,37 +26,67 @@ __decorate([
     (0, graphql_1.Field)(),
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Job.prototype, "jobNumber", void 0);
-__decorate([
-    (0, graphql_1.Field)(),
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
 ], Job.prototype, "name", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => JobStatus),
+    (0, graphql_1.Field)(() => job_enum_1.JobStatus),
     (0, typeorm_1.Column)({
         type: 'enum',
-        enum: JobStatus,
-        default: JobStatus.DESIGN,
+        enum: job_enum_1.JobStatus,
+        default: job_enum_1.JobStatus.DESIGN,
     }),
     __metadata("design:type", String)
 ], Job.prototype, "status", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => JobPriority),
+    (0, graphql_1.Field)(() => job_enum_1.JobPriority),
     (0, typeorm_1.Column)({
         type: 'enum',
-        enum: JobPriority,
-        default: JobPriority.NORMAL,
+        enum: job_enum_1.JobPriority,
+        default: job_enum_1.JobPriority.NORMAL,
     }),
     __metadata("design:type", String)
 ], Job.prototype, "priority", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => graphql_1.GraphQLISODateTime, { nullable: true }),
-    (0, typeorm_1.Column)({ type: 'timestamp', nullable: true }),
+    (0, graphql_1.Field)(() => graphql_1.Float),
+    (0, typeorm_1.Column)('float'),
+    __metadata("design:type", Number)
+], Job.prototype, "width", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => graphql_1.Float),
+    (0, typeorm_1.Column)('float'),
+    __metadata("design:type", Number)
+], Job.prototype, "height", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => graphql_1.Float),
+    (0, typeorm_1.Column)('float', { default: 1 }),
+    __metadata("design:type", Number)
+], Job.prototype, "quantity", void 0);
+__decorate([
+    (0, graphql_1.Field)(),
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Job.prototype, "printMaterial", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], Job.prototype, "laminateMaterial", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, typeorm_1.Column)('text', { nullable: true }),
+    __metadata("design:type", String)
+], Job.prototype, "description", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, typeorm_1.Column)('text', { nullable: true }),
+    __metadata("design:type", String)
+], Job.prototype, "productionNotes", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => graphql_1.GraphQLISODateTime),
+    (0, typeorm_1.Column)(),
     __metadata("design:type", Date)
 ], Job.prototype, "dueDate", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
+    (0, graphql_1.Field)({ nullable: true }),
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Job.prototype, "assignedTo", void 0);
@@ -88,7 +97,6 @@ __decorate([
     __metadata("design:type", customer_entity_1.Customer)
 ], Job.prototype, "customer", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], Job.prototype, "customerId", void 0);

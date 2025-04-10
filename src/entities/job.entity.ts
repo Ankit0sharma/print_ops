@@ -1,30 +1,9 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { ObjectType, Field, ID, registerEnumType, GraphQLISODateTime } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Float, GraphQLISODateTime } from '@nestjs/graphql';
 import { Customer } from './customer.entity';
+import { JobStatus, JobPriority } from '../common/enums/job.enum';
 
-export enum JobStatus {
-  DESIGN = 'design',
-  PRODUCTION = 'production',
-  PRINT = 'print',
-  APPROVAL = 'approval',
-  COMPLETED = 'completed',
-}
 
-export enum JobPriority {
-  HIGH = 'high',
-  NORMAL = 'normal',
-  URGENT = 'urgent',
-}
-
-registerEnumType(JobStatus, {
-  name: 'JobStatus',
-  description: 'Job status types',
-});
-
-registerEnumType(JobPriority, {
-  name: 'JobPriority',
-  description: 'Job priority levels',
-});
 
 @ObjectType()
 @Entity('jobs')
@@ -32,10 +11,6 @@ export class Job {
   @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Field()
-  @Column()
-  jobNumber: string;
 
   @Field()
   @Column()
@@ -57,20 +32,47 @@ export class Job {
   })
   priority: JobPriority;
 
-  @Field(() => GraphQLISODateTime, { nullable: true })
-  @Column({ type: 'timestamp', nullable: true })
-  dueDate: Date;
+  @Field(() => Float)
+  @Column('float')
+  width: number;
+
+  @Field(() => Float)
+  @Column('float')
+  height: number;
+
+  @Field(() => Float)
+  @Column('float', { default: 1 })
+  quantity: number;
 
   @Field()
+  @Column()
+  printMaterial: string;
+
+  @Field({ nullable: true })
   @Column({ nullable: true })
-  assignedTo: string;
+  laminateMaterial?: string;
+
+  @Field({ nullable: true })
+  @Column('text', { nullable: true })
+  description?: string;
+
+  @Field({ nullable: true })
+  @Column('text', { nullable: true })
+  productionNotes?: string;
+
+  @Field(() => GraphQLISODateTime)
+  @Column()
+  dueDate: Date;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  assignedTo?: string;
 
   @Field(() => Customer)
   @ManyToOne(() => Customer, customer => customer.jobs)
   @JoinColumn({ name: 'customerId' })
   customer: Customer;
 
-  @Field()
   @Column()
   customerId: string;
 
