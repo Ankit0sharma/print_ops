@@ -26,7 +26,7 @@ console.log('DATABASE_URL from env:', process.env.DATABASE_URL);
 const commonConfig = {
     type: 'postgres',
     url: 'postgresql://postgres.ppbgiifhlxofnrtzltzj:bitcot@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres',
-    synchronize: true,
+    synchronize: false,
     logging: true, // Enable logging to see database queries
     ssl: { rejectUnauthorized: false }, // Always use SSL with rejectUnauthorized: false
     extra: {
