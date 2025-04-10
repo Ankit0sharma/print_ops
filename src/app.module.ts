@@ -8,6 +8,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { CustomerModule } from './modules/customers/customers.module';
+import { JobModule } from './modules/jobs/jobs.module';
+import { InvoiceModule } from './modules/invoices/invoices.module';
+import { MaterialModule } from './modules/materials/materials.module';
+
 
 @Module({
   imports: [
@@ -34,6 +39,10 @@ import { UsersModule } from './modules/users/users.module';
     }),
     AuthModule,
     UsersModule,
+    CustomerModule,
+    JobModule,
+    InvoiceModule,
+    MaterialModule,
   ],
   controllers: [],
   providers: [AppResolver],

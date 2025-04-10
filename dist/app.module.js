@@ -20,6 +20,10 @@ const typeorm_2 = require("@nestjs/typeorm");
 const path_1 = require("path");
 const auth_module_1 = require("./modules/auth/auth.module");
 const users_module_1 = require("./modules/users/users.module");
+const customers_module_1 = require("./modules/customers/customers.module");
+const jobs_module_1 = require("./modules/jobs/jobs.module");
+const invoices_module_1 = require("./modules/invoices/invoices.module");
+const materials_module_1 = require("./modules/materials/materials.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -49,6 +53,10 @@ exports.AppModule = AppModule = __decorate([
             }),
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
+            customers_module_1.CustomerModule,
+            jobs_module_1.JobModule,
+            invoices_module_1.InvoiceModule,
+            materials_module_1.MaterialModule,
         ],
         controllers: [],
         providers: [app_resolver_1.AppResolver],
