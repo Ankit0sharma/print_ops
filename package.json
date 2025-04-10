@@ -7,7 +7,7 @@
     "build": "rimraf dist && tsc",
     "vercel-build": "npm run build"
   },
- "dependencies": {
+  "dependencies": {
     "@nestjs/apollo": "^13.0.4",
     "@nestjs/common": "^11.0.13",
     "@nestjs/config": "^4.0.2",
@@ -21,7 +21,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/node": "^20.11.30",
     "apollo-server-express": "^3.13.0",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.7",

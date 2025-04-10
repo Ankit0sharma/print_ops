@@ -45,7 +45,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = exports.UserRole = void 0;
 const typeorm_1 = require("typeorm");
 const graphql_1 = require("@nestjs/graphql");
-const bcrypt = __importStar(require("bcrypt"));
+const bcrypt = __importStar(require("bcryptjs"));
 var UserRole;
 (function (UserRole) {
     UserRole["CORPORATE"] = "corporate";
@@ -59,7 +59,7 @@ var UserRole;
 let User = class User {
     async hashPassword() {
         if (this.password) {
-            const salt = await bcrypt.genSalt();
+            const salt = await bcrypt.genSalt(10);
             this.password = await bcrypt.hash(this.password, salt);
         }
     }
