@@ -16,6 +16,7 @@ exports.CustomersResolver = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const customers_service_1 = require("./customers.service");
 const customer_entity_1 = require("../../entities/customer.entity");
+const customer_enum_1 = require("../../common/enums/customer.enum");
 const create_customer_input_1 = require("./dto/create-customer.input");
 const update_customer_input_1 = require("./dto/update-customer.input");
 let CustomersResolver = class CustomersResolver {
@@ -104,7 +105,7 @@ __decorate([
 __decorate([
     (0, graphql_1.Mutation)(() => customer_entity_1.Customer),
     __param(0, (0, graphql_1.Args)('id', { type: () => graphql_1.ID })),
-    __param(1, (0, graphql_1.Args)('status', { type: () => customer_entity_1.CustomerStatus })),
+    __param(1, (0, graphql_1.Args)('status', { type: () => customer_enum_1.CustomerStatus })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -112,7 +113,7 @@ __decorate([
 __decorate([
     (0, graphql_1.Mutation)(() => customer_entity_1.Customer),
     __param(0, (0, graphql_1.Args)('id', { type: () => graphql_1.ID })),
-    __param(1, (0, graphql_1.Args)('customerType', { type: () => customer_entity_1.CustomerType })),
+    __param(1, (0, graphql_1.Args)('customerType', { type: () => customer_enum_1.CustomerType })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)

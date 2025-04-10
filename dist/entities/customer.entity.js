@@ -9,33 +9,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Customer = exports.CustomerStatus = exports.CustomerType = void 0;
+exports.Customer = void 0;
 const typeorm_1 = require("typeorm");
 const graphql_1 = require("@nestjs/graphql");
 const job_entity_1 = require("./job.entity");
-var CustomerType;
-(function (CustomerType) {
-    CustomerType["CORPORATE"] = "corporate";
-    CustomerType["SMALL_BUSINESS"] = "small_business";
-    CustomerType["INDIVIDUAL"] = "individual";
-    CustomerType["NON_PROFIT"] = "non_profit";
-})(CustomerType || (exports.CustomerType = CustomerType = {}));
-var CustomerStatus;
-(function (CustomerStatus) {
-    CustomerStatus["ACTIVE"] = "active";
-    CustomerStatus["INACTIVE"] = "inactive";
-    CustomerStatus["PENDING"] = "pending";
-    CustomerStatus["BLOCKED"] = "blocked";
-})(CustomerStatus || (exports.CustomerStatus = CustomerStatus = {}));
-(0, graphql_1.registerEnumType)(CustomerType, {
-    name: 'CustomerType',
-    description: 'Customer type categories'
-});
-(0, graphql_1.registerEnumType)(CustomerStatus, {
-    name: 'CustomerStatus',
-    description: 'Customer status options'
-});
+const customer_enum_1 = require("../common/enums/customer.enum");
 let Customer = class Customer {
+    transformCustomerType() {
+        if (this.customerType) {
+            this.customerType = (0, customer_enum_1.transformCustomerType)(this.customerType);
+        }
+    }
 };
 exports.Customer = Customer;
 __decorate([
@@ -84,23 +68,33 @@ __decorate([
     __metadata("design:type", String)
 ], Customer.prototype, "notes", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => CustomerStatus),
+    (0, graphql_1.Field)(() => customer_enum_1.CustomerStatus),
     (0, typeorm_1.Column)({
         type: 'enum',
-        enum: CustomerStatus,
-        default: CustomerStatus.ACTIVE
+        enum: customer_enum_1.CustomerStatus,
+        default: customer_enum_1.CustomerStatus.ACTIVE
     }),
     __metadata("design:type", String)
 ], Customer.prototype, "status", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => CustomerType),
+    (0, graphql_1.Field)(() => customer_enum_1.CustomerType),
     (0, typeorm_1.Column)({
-        type: 'enum',
-        enum: CustomerType,
-        default: CustomerType.SMALL_BUSINESS
+        type: 'varchar',
+        default: customer_enum_1.CustomerType.SMALL_BUSINESS,
+        transformer: {
+            to: (value) => value.toLowerCase(),
+            from: (value) => value
+        }
     }),
     __metadata("design:type", String)
 ], Customer.prototype, "customerType", void 0);
+__decorate([
+    (0, typeorm_1.BeforeInsert)(),
+    (0, typeorm_1.BeforeUpdate)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], Customer.prototype, "transformCustomerType", null);
 __decorate([
     (0, graphql_1.Field)(),
     (0, typeorm_1.Column)(),

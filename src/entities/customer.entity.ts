@@ -1,30 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, BeforeInsert, BeforeUpdate } from 'typeorm';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { Job } from './job.entity';
-
-export enum CustomerType {
-  CORPORATE = 'corporate',
-  SMALL_BUSINESS = 'small_business',
-  INDIVIDUAL = 'individual',
-  NON_PROFIT = 'non_profit'
-}
-
-export enum CustomerStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  PENDING = 'pending',
-  BLOCKED = 'blocked'
-}
-
-registerEnumType(CustomerType, {
-  name: 'CustomerType',
-  description: 'Customer type categories'
-});
-
-registerEnumType(CustomerStatus, {
-  name: 'CustomerStatus',
-  description: 'Customer status options'
-});
+import { CustomerType, CustomerStatus, transformCustomerType } from '../common/enums/customer.enum';
 
 @ObjectType()
 @Entity('customers')
@@ -75,11 +52,22 @@ export class Customer {
 
   @Field(() => CustomerType)
   @Column({
-    type: 'enum',
-    enum: CustomerType,
-    default: CustomerType.SMALL_BUSINESS
+    type: 'varchar',
+    default: CustomerType.SMALL_BUSINESS,
+    transformer: {
+      to: (value: string) => value.toLowerCase(),
+      from: (value: string) => value
+    }
   })
   customerType: CustomerType;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  transformCustomerType() {
+    if (this.customerType) {
+      this.customerType = transformCustomerType(this.customerType) as CustomerType;
+    }
+  }
 
   @Field()
   @Column()
@@ -111,4 +99,6 @@ export class Customer {
   @Field()
   @UpdateDateColumn()
   updatedAt: Date;
+
+
 }

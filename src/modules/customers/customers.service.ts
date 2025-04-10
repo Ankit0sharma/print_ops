@@ -1,7 +1,8 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Customer, CustomerType, CustomerStatus } from '../../entities/customer.entity';
+import { Customer } from '../../entities/customer.entity';
+import { CustomerType, CustomerStatus } from '../../common/enums/customer.enum';
 import { CreateCustomerInput } from './dto/create-customer.input';
 import { UpdateCustomerInput } from './dto/update-customer.input';
 
@@ -29,6 +30,10 @@ export class CustomersService {
 
   async findAll(): Promise<Customer[]> {
     return await this.customerRepository.find();
+  }
+
+  async findByEmail(email: string): Promise<Customer | null> {
+    return await this.customerRepository.findOne({ where: { email } });
   }
 
   async findOne(id: string): Promise<Customer> {
@@ -92,12 +97,6 @@ export class CustomersService {
   async findInactive(): Promise<Customer[]> {
     return this.customerRepository.find({
       where: { status: CustomerStatus.INACTIVE }
-    });
-  }
-
-  async findByEmail(email: string): Promise<Customer> {
-    return this.customerRepository.findOne({
-      where: { email }
     });
   }
 }

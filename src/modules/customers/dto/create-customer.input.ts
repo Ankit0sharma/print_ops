@@ -1,6 +1,6 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { IsEmail, IsNotEmpty, IsEnum, IsOptional, IsString } from 'class-validator';
-import { CustomerType, CustomerStatus } from '../../../entities/customer.entity';
+import { CustomerType, CustomerStatus } from '../../../common/enums/customer.enum';
 
 @InputType()
 export class CreateCustomerInput {

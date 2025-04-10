@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const customer_entity_1 = require("../../entities/customer.entity");
+const customer_enum_1 = require("../../common/enums/customer.enum");
 let CustomersService = class CustomersService {
     constructor(customerRepository) {
         this.customerRepository = customerRepository;
@@ -37,6 +38,9 @@ let CustomersService = class CustomersService {
     }
     async findAll() {
         return await this.customerRepository.find();
+    }
+    async findByEmail(email) {
+        return await this.customerRepository.findOne({ where: { email } });
     }
     async findOne(id) {
         const customer = await this.customerRepository.findOne({
@@ -87,17 +91,12 @@ let CustomersService = class CustomersService {
     }
     async findActive() {
         return this.customerRepository.find({
-            where: { status: customer_entity_1.CustomerStatus.ACTIVE }
+            where: { status: customer_enum_1.CustomerStatus.ACTIVE }
         });
     }
     async findInactive() {
         return this.customerRepository.find({
-            where: { status: customer_entity_1.CustomerStatus.INACTIVE }
-        });
-    }
-    async findByEmail(email) {
-        return this.customerRepository.findOne({
-            where: { email }
+            where: { status: customer_enum_1.CustomerStatus.INACTIVE }
         });
     }
 };

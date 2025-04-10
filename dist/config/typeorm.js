@@ -1,31 +1,21 @@
 "use strict";
-// src/config/typeorm.ts
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectionSource = void 0;
 const config_1 = require("@nestjs/config");
 const dotenv_1 = require("dotenv");
 const typeorm_1 = require("typeorm");
-// const envFile = process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env';
-// dotenvConfig({ path: `.env.${process.env.NODE_ENV}` });
-(0, dotenv_1.config)({ path: `.env.${process.env.NODE_ENV}` });
-// dotenvConfig({ path: `.env` });
-console.log('Loaded env variables:', process.env);
-const dbUrl = process.env.DATABASE_URL;
-console.log("postgres--- ", dbUrl);
-// console.log('DATABASE_URL from env:', process.env.DATABASE_URL);
+(0, dotenv_1.config)({ path: `.env` });
 const commonConfig = {
     type: 'postgres',
-    url: dbUrl,
+    url: process.env.DATABASE_URL,
     synchronize: false,
-    logging: true, // Enable logging to see database queries
-    ssl: { rejectUnauthorized: false }, // Always use SSL with rejectUnauthorized: false
+    logging: true,
+    ssl: { rejectUnauthorized: false },
     extra: {
-        // Ensure TypeORM works better in serverless environments
         connectionLimit: 10,
         max: 10,
-        // Add connection timeout settings
-        connectTimeout: 30000, // 30 seconds
-        idleTimeoutMillis: 30000, // 30 seconds
+        connectTimeout: 30000,
+        idleTimeoutMillis: 30000,
     },
 };
 const runtimeConfig = {

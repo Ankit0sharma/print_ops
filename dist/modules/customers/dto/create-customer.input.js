@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateCustomerInput = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const class_validator_1 = require("class-validator");
-const customer_entity_1 = require("../../../entities/customer.entity");
+const customer_enum_1 = require("../../../common/enums/customer.enum");
 let CreateCustomerInput = class CreateCustomerInput {
 };
 exports.CreateCustomerInput = CreateCustomerInput;
@@ -52,14 +52,14 @@ __decorate([
     __metadata("design:type", String)
 ], CreateCustomerInput.prototype, "notes", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => customer_entity_1.CustomerStatus),
-    (0, class_validator_1.IsEnum)(customer_entity_1.CustomerStatus),
+    (0, graphql_1.Field)(() => customer_enum_1.CustomerStatus),
+    (0, class_validator_1.IsEnum)(customer_enum_1.CustomerStatus),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateCustomerInput.prototype, "status", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => customer_entity_1.CustomerType),
-    (0, class_validator_1.IsEnum)(customer_entity_1.CustomerType),
+    (0, graphql_1.Field)(() => customer_enum_1.CustomerType),
+    (0, class_validator_1.IsEnum)(customer_enum_1.CustomerType),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateCustomerInput.prototype, "customerType", void 0);

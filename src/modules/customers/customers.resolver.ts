@@ -1,6 +1,7 @@
 import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { CustomersService } from './customers.service';
-import { Customer, CustomerType, CustomerStatus } from '../../entities/customer.entity';
+import { Customer } from '../../entities/customer.entity';
+import { CustomerType, CustomerStatus } from '../../common/enums/customer.enum';
 import { CreateCustomerInput } from './dto/create-customer.input';
 import { UpdateCustomerInput } from './dto/update-customer.input';
 
