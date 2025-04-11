@@ -6,3 +6,4 @@ node_modules/
 
 # Invorment
 .env
+.env.development

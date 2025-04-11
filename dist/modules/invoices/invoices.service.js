@@ -12,58 +12,113 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.InvoiceService = void 0;
+exports.InvoicesService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const invoice_entity_1 = require("../../entities/invoice.entity");
-let InvoiceService = class InvoiceService {
+const invoice_enum_1 = require("../../common/enums/invoice.enum");
+let InvoicesService = class InvoicesService {
     constructor(invoiceRepository) {
         this.invoiceRepository = invoiceRepository;
     }
     // Create a new invoice
     async createInvoice(createInvoiceInput) {
-        try {
-            // Check if invoice number already exists
-            const existingInvoice = await this.invoiceRepository.findOne({
-                where: { invoiceNumber: createInvoiceInput.invoiceNumber },
-            });
-            if (existingInvoice) {
-                throw new common_1.BadRequestException('Invoice number already exists');
-            }
-            const newInvoice = this.invoiceRepository.create(createInvoiceInput);
-            return this.invoiceRepository.save(newInvoice);
-        }
-        catch (error) {
-            throw new common_1.BadRequestException(error.message);
-        }
+        const items = createInvoiceInput.items.map(item => ({
+            ...item,
+            amount: item.quantity * item.unitPrice,
+        }));
+        const subtotal = this.calculateSubtotal(items);
+        const taxRate = createInvoiceInput.taxRate || 0;
+        const total = subtotal * (1 + taxRate / 100);
+        const invoice = this.invoiceRepository.create({
+            ...createInvoiceInput,
+            items,
+            subtotal,
+            total,
+            amount: total,
+            status: createInvoiceInput.status || invoice_enum_1.InvoiceStatus.DRAFT,
+        });
+        return this.invoiceRepository.save(invoice);
     }
     // Find all invoices
-    async findAll() {
-        return this.invoiceRepository.find({
-            relations: ['customer', 'job'],
-        });
+    async findInvoices(filterInput) {
+        const { page = 1, limit = 10, status, startDate, endDate, customerId, jobId, quickbooksSynced, search, sortField = invoice_enum_1.InvoiceSortField.DATE, sortDirection = invoice_enum_1.SortDirection.DESC } = filterInput;
+        const skip = (page - 1) * limit;
+        const queryBuilder = this.invoiceRepository
+            .createQueryBuilder('invoice')
+            .leftJoinAndSelect('invoice.customer', 'customer')
+            .leftJoinAndSelect('invoice.job', 'job');
+        // Apply filters
+        if (status) {
+            queryBuilder.andWhere('invoice.status = :status', { status });
+        }
+        if (startDate && endDate) {
+            queryBuilder.andWhere('invoice.issueDate BETWEEN :startDate AND :endDate', {
+                startDate,
+                endDate,
+            });
+        }
+        if (customerId) {
+            queryBuilder.andWhere('invoice.customerId = :customerId', { customerId });
+        }
+        if (jobId) {
+            queryBuilder.andWhere('invoice.jobId = :jobId', { jobId });
+        }
+        if (quickbooksSynced !== undefined) {
+            queryBuilder.andWhere('invoice.quickbooksSynced = :quickbooksSynced', { quickbooksSynced });
+        }
+        if (search) {
+            queryBuilder.andWhere('invoice.invoiceNumber ILIKE :search', { search: `%${search}%` });
+        }
+        // Apply sorting
+        const sortColumn = this.getSortColumn(sortField);
+        queryBuilder.orderBy(sortColumn, sortDirection);
+        // Get total count
+        const total = await queryBuilder.getCount();
+        // Apply pagination
+        queryBuilder.skip(skip).take(limit);
+        // Get results
+        const items = await queryBuilder.getMany();
+        return {
+            items,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
+    }
+    getSortColumn(sortField) {
+        const sortMap = {
+            [invoice_enum_1.InvoiceSortField.DATE]: 'invoice.issueDate',
+            [invoice_enum_1.InvoiceSortField.AMOUNT]: 'invoice.amount',
+            [invoice_enum_1.InvoiceSortField.DUE_DATE]: 'invoice.dueDate',
+            [invoice_enum_1.InvoiceSortField.STATUS]: 'invoice.status',
+        };
+        return sortMap[sortField] || 'invoice.issueDate';
     }
     // Find invoices by status
-    async findByStatus(status) {
+    async findInvoicesByStatus(status) {
         return this.invoiceRepository.find({
             where: { status },
             relations: ['customer', 'job'],
+            order: { issueDate: 'DESC' },
         });
     }
     // Find overdue invoices
-    async findOverdue() {
+    async findOverdueInvoices() {
         const today = new Date();
         return this.invoiceRepository.find({
             where: {
-                status: invoice_entity_1.InvoiceStatus.PENDING,
+                status: invoice_enum_1.InvoiceStatus.PENDING,
                 dueDate: (0, typeorm_2.LessThan)(today),
             },
             relations: ['customer', 'job'],
+            order: { dueDate: 'ASC' },
         });
     }
     // Find invoices for a specific month
-    async findByMonth(year, month) {
+    async findInvoicesByMonth(year, month) {
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0);
         return this.invoiceRepository.find({
@@ -71,26 +126,29 @@ let InvoiceService = class InvoiceService {
                 issueDate: (0, typeorm_2.Between)(startDate, endDate),
             },
             relations: ['customer', 'job'],
+            order: { issueDate: 'DESC' },
         });
     }
     // Find invoices by customer
-    async findByCustomer(customerId) {
+    async findInvoicesByCustomer(customerId) {
         return this.invoiceRepository.find({
             where: { customerId },
             relations: ['customer', 'job'],
+            order: { issueDate: 'DESC' },
         });
     }
     // Find invoices by job
-    async findByJob(jobId) {
+    async findInvoicesByJob(jobId) {
         return this.invoiceRepository.find({
             where: { jobId },
             relations: ['customer', 'job'],
+            order: { issueDate: 'DESC' },
         });
     }
     // Calculate total outstanding amount
     async calculateTotalOutstanding() {
         const pendingInvoices = await this.invoiceRepository.find({
-            where: { status: invoice_entity_1.InvoiceStatus.PENDING },
+            where: { status: invoice_enum_1.InvoiceStatus.PENDING },
         });
         return pendingInvoices.reduce((total, invoice) => total + Number(invoice.amount), 0);
     }
@@ -101,71 +159,112 @@ let InvoiceService = class InvoiceService {
         const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
         const paidInvoices = await this.invoiceRepository.find({
             where: {
-                status: invoice_entity_1.InvoiceStatus.PAID,
+                status: invoice_enum_1.InvoiceStatus.PAID,
                 issueDate: (0, typeorm_2.Between)(startOfMonth, endOfMonth),
             },
         });
         return paidInvoices.reduce((total, invoice) => total + Number(invoice.amount), 0);
     }
+    // Get invoice statistics for dashboard
+    async getStats() {
+        const [totalCount, paidCount, pendingCount, overdueCount] = await Promise.all([
+            this.invoiceRepository.count(),
+            this.invoiceRepository.count({ where: { status: invoice_enum_1.InvoiceStatus.PAID } }),
+            this.invoiceRepository.count({ where: { status: invoice_enum_1.InvoiceStatus.PENDING } }),
+            this.invoiceRepository.count({ where: { status: invoice_enum_1.InvoiceStatus.OVERDUE } }),
+        ]);
+        return {
+            totalCount,
+            paidCount,
+            pendingCount,
+            overdueCount,
+        };
+    }
     // Find a invoice by ID
-    async findOne(id) {
+    async findInvoice(id) {
         const invoice = await this.invoiceRepository.findOne({
             where: { id },
             relations: ['customer', 'job'],
         });
         if (!invoice) {
-            throw new common_1.NotFoundException('Invoice not found');
+            throw new common_1.NotFoundException(`Invoice with ID ${id} not found`);
         }
         return invoice;
     }
     // Update an invoice
     async updateInvoice(id, updateInvoiceInput) {
-        try {
-            const invoice = await this.findOne(id);
-            // If invoice number is being updated, check if it's already in use
-            if (updateInvoiceInput.invoiceNumber && updateInvoiceInput.invoiceNumber !== invoice.invoiceNumber) {
-                const existingInvoice = await this.invoiceRepository.findOne({
-                    where: { invoiceNumber: updateInvoiceInput.invoiceNumber },
-                });
-                if (existingInvoice && existingInvoice.id !== id) {
-                    throw new common_1.BadRequestException('Invoice number already exists');
-                }
+        const invoice = await this.findInvoice(id);
+        const updates = {};
+        // Copy all fields except items and billingAddress
+        Object.keys(updateInvoiceInput).forEach(key => {
+            if (key !== 'items' && key !== 'billingAddress') {
+                updates[key] = updateInvoiceInput[key];
             }
-            Object.assign(invoice, updateInvoiceInput);
-            return this.invoiceRepository.save(invoice);
+        });
+        // Handle items update
+        if (updateInvoiceInput.items) {
+            updates.items = updateInvoiceInput.items.map(item => ({
+                ...item,
+                amount: item.quantity * item.unitPrice,
+            }));
+            const subtotal = this.calculateSubtotal(updates.items);
+            const taxRate = updates.taxRate || invoice.taxRate || 0;
+            const total = subtotal * (1 + taxRate / 100);
+            updates.subtotal = subtotal;
+            updates.total = total;
+            updates.amount = total;
         }
-        catch (error) {
-            throw new common_1.BadRequestException(error.message);
+        // Handle billing address update
+        if (updateInvoiceInput.billingAddress) {
+            const { street, city, state, zip, country } = updateInvoiceInput.billingAddress;
+            if (street && city && state && zip && country) {
+                updates.billingAddress = updateInvoiceInput.billingAddress;
+            }
         }
+        Object.assign(invoice, updates);
+        return this.invoiceRepository.save(invoice);
     }
     // Update invoice status
-    async updateStatus(id, status) {
-        const invoice = await this.findOne(id);
+    async updateInvoiceStatus(id, status) {
+        const invoice = await this.findInvoice(id);
         invoice.status = status;
         return this.invoiceRepository.save(invoice);
     }
     // Mark invoice as synced with QuickBooks
-    async markAsSynced(id) {
-        const invoice = await this.findOne(id);
+    async markInvoiceAsSynced(id) {
+        const invoice = await this.findInvoice(id);
         invoice.quickbooksSynced = true;
         return this.invoiceRepository.save(invoice);
+    }
+    // Sync multiple invoices with QuickBooks
+    async syncMultipleInvoices(ids) {
+        try {
+            await this.invoiceRepository.update({ id: (0, typeorm_2.In)(ids) }, { quickbooksSynced: true });
+            return true;
+        }
+        catch (error) {
+            throw new common_1.NotFoundException(error.message);
+        }
     }
     // Delete an invoice
     async deleteInvoice(id) {
         try {
-            const invoice = await this.findOne(id);
+            const invoice = await this.findInvoice(id);
             await this.invoiceRepository.remove(invoice);
             return true;
         }
         catch (error) {
-            throw new common_1.BadRequestException(error.message);
+            throw new common_1.NotFoundException(error.message);
         }
     }
+    calculateSubtotal(items) {
+        return items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+    }
 };
-exports.InvoiceService = InvoiceService;
-exports.InvoiceService = InvoiceService = __decorate([
+exports.InvoicesService = InvoicesService;
+exports.InvoicesService = InvoicesService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(invoice_entity_1.Invoice)),
     __metadata("design:paramtypes", [typeorm_2.Repository])
-], InvoiceService);
+], InvoicesService);
 //# sourceMappingURL=invoices.service.js.map

@@ -1,47 +1,103 @@
-import { InputType, Field, Float, GraphQLISODateTime } from '@nestjs/graphql';
-import { IsNotEmpty, IsEnum, IsNumber, IsOptional, IsBoolean, IsDate, IsUUID } from 'class-validator';
-import { InvoiceStatus } from '../../../entities/invoice.entity';
+import { InputType, Field, Float } from '@nestjs/graphql';
+import { IsEnum, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { InvoiceStatus, InvoicePaymentTerms } from '../../../common/enums/invoice.enum';
+
+@InputType()
+export class BillingAddressInput {
+  @Field()
+  @IsString()
+  street: string;
+
+  @Field()
+  @IsString()
+  city: string;
+
+  @Field()
+  @IsString()
+  state: string;
+
+  @Field()
+  @IsString()
+  zip: string;
+
+  @Field()
+  @IsString()
+  country: string;
+}
+
+@InputType()
+export class InvoiceItemInput {
+  @Field()
+  @IsString()
+  description: string;
+
+  @Field(() => Float)
+  @IsNumber()
+  quantity: number;
+
+  @Field(() => Float)
+  @IsNumber()
+  unitPrice: number;
+}
 
 @InputType()
 export class CreateInvoiceInput {
   @Field()
-  @IsNotEmpty()
+  @IsString()
   invoiceNumber: string;
 
   @Field()
-  @IsUUID()
-  @IsNotEmpty()
+  @IsString()
   customerId: string;
 
-  @Field()
-  @IsUUID()
-  @IsNotEmpty()
-  jobId: string;
-
-  @Field(() => GraphQLISODateTime, { nullable: true })
-  @Type(() => Date)
-  @IsDate()
+  @Field({ nullable: true })
+  @IsString()
   @IsOptional()
-  issueDate?: Date;
+  jobId?: string;
 
-  @Field(() => GraphQLISODateTime, { nullable: true })
+  @Field(() => [InvoiceItemInput])
+  @ValidateNested({ each: true })
+  @Type(() => InvoiceItemInput)
+  items: InvoiceItemInput[];
+
+  @Field(() => Float, { nullable: true })
+  @IsNumber()
+  @IsOptional()
+  taxRate?: number;
+
+  @Field(() => InvoiceStatus, { nullable: true })
+  @IsEnum(InvoiceStatus)
+  @IsOptional()
+  status?: InvoiceStatus;
+
+  @Field(() => InvoicePaymentTerms, { nullable: true })
+  @IsEnum(InvoicePaymentTerms)
+  @IsOptional()
+  paymentTerms?: InvoicePaymentTerms;
+
+  @Field(() => Date, { nullable: true })
   @Type(() => Date)
-  @IsDate()
+  @IsOptional()
+  date?: Date;
+
+  @Field(() => Date, { nullable: true })
+  @Type(() => Date)
   @IsOptional()
   dueDate?: Date;
 
-  @Field(() => Float)
-  @IsNumber()
-  amount: number;
-
-  @Field(() => InvoiceStatus, { defaultValue: InvoiceStatus.DRAFT })
-  @IsEnum(InvoiceStatus)
+  @Field({ nullable: true })
+  @IsString()
   @IsOptional()
-  status: InvoiceStatus;
+  notes?: string;
 
-  @Field({ defaultValue: false })
-  @IsBoolean()
+  @Field({ nullable: true })
+  @IsString()
   @IsOptional()
-  quickbooksSynced: boolean;
+  paymentInstructions?: string;
+
+  @Field(() => BillingAddressInput)
+  @ValidateNested()
+  @Type(() => BillingAddressInput)
+  billingAddress: BillingAddressInput;
 }

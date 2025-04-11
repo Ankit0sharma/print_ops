@@ -9,11 +9,48 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateInvoiceInput = void 0;
+exports.UpdateInvoiceInput = exports.UpdateBillingAddressInput = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const class_validator_1 = require("class-validator");
-const invoice_entity_1 = require("../../../entities/invoice.entity");
 const class_transformer_1 = require("class-transformer");
+const invoice_enum_1 = require("../../../common/enums/invoice.enum");
+const create_invoice_input_1 = require("./create-invoice.input");
+let UpdateBillingAddressInput = class UpdateBillingAddressInput {
+};
+exports.UpdateBillingAddressInput = UpdateBillingAddressInput;
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateBillingAddressInput.prototype, "street", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateBillingAddressInput.prototype, "city", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateBillingAddressInput.prototype, "state", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateBillingAddressInput.prototype, "zip", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateBillingAddressInput.prototype, "country", void 0);
+exports.UpdateBillingAddressInput = UpdateBillingAddressInput = __decorate([
+    (0, graphql_1.InputType)()
+], UpdateBillingAddressInput);
 let UpdateInvoiceInput = class UpdateInvoiceInput {
 };
 exports.UpdateInvoiceInput = UpdateInvoiceInput;
@@ -24,48 +61,70 @@ __decorate([
 ], UpdateInvoiceInput.prototype, "invoiceNumber", void 0);
 __decorate([
     (0, graphql_1.Field)({ nullable: true }),
-    (0, class_validator_1.IsUUID)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateInvoiceInput.prototype, "customerId", void 0);
 __decorate([
     (0, graphql_1.Field)({ nullable: true }),
-    (0, class_validator_1.IsUUID)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateInvoiceInput.prototype, "jobId", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => graphql_1.GraphQLISODateTime, { nullable: true }),
-    (0, class_transformer_1.Type)(() => Date),
-    (0, class_validator_1.IsDate)(),
+    (0, graphql_1.Field)(() => [create_invoice_input_1.InvoiceItemInput], { nullable: true }),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => create_invoice_input_1.InvoiceItemInput),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Date)
-], UpdateInvoiceInput.prototype, "issueDate", void 0);
-__decorate([
-    (0, graphql_1.Field)(() => graphql_1.GraphQLISODateTime, { nullable: true }),
-    (0, class_transformer_1.Type)(() => Date),
-    (0, class_validator_1.IsDate)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Date)
-], UpdateInvoiceInput.prototype, "dueDate", void 0);
+    __metadata("design:type", Array)
+], UpdateInvoiceInput.prototype, "items", void 0);
 __decorate([
     (0, graphql_1.Field)(() => graphql_1.Float, { nullable: true }),
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
-], UpdateInvoiceInput.prototype, "amount", void 0);
+], UpdateInvoiceInput.prototype, "taxRate", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => invoice_entity_1.InvoiceStatus, { nullable: true }),
-    (0, class_validator_1.IsEnum)(invoice_entity_1.InvoiceStatus),
+    (0, graphql_1.Field)(() => invoice_enum_1.InvoiceStatus, { nullable: true }),
+    (0, class_validator_1.IsEnum)(invoice_enum_1.InvoiceStatus),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateInvoiceInput.prototype, "status", void 0);
 __decorate([
-    (0, graphql_1.Field)({ nullable: true }),
-    (0, class_validator_1.IsBoolean)(),
+    (0, graphql_1.Field)(() => invoice_enum_1.InvoicePaymentTerms, { nullable: true }),
+    (0, class_validator_1.IsEnum)(invoice_enum_1.InvoicePaymentTerms),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], UpdateInvoiceInput.prototype, "quickbooksSynced", void 0);
+    __metadata("design:type", String)
+], UpdateInvoiceInput.prototype, "paymentTerms", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => Date, { nullable: true }),
+    (0, class_transformer_1.Type)(() => Date),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Date)
+], UpdateInvoiceInput.prototype, "date", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => Date, { nullable: true }),
+    (0, class_transformer_1.Type)(() => Date),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Date)
+], UpdateInvoiceInput.prototype, "dueDate", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateInvoiceInput.prototype, "notes", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateInvoiceInput.prototype, "paymentInstructions", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => UpdateBillingAddressInput, { nullable: true }),
+    (0, class_validator_1.ValidateNested)(),
+    (0, class_transformer_1.Type)(() => UpdateBillingAddressInput),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", UpdateBillingAddressInput)
+], UpdateInvoiceInput.prototype, "billingAddress", void 0);
 exports.UpdateInvoiceInput = UpdateInvoiceInput = __decorate([
     (0, graphql_1.InputType)()
 ], UpdateInvoiceInput);

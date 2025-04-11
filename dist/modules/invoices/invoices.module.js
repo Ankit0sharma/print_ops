@@ -6,20 +6,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.InvoiceModule = void 0;
+exports.InvoicesModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const invoices_service_1 = require("./invoices.service");
 const invoices_resolver_1 = require("./invoices.resolver");
 const invoice_entity_1 = require("../../entities/invoice.entity");
-let InvoiceModule = class InvoiceModule {
+let InvoicesModule = class InvoicesModule {
 };
-exports.InvoiceModule = InvoiceModule;
-exports.InvoiceModule = InvoiceModule = __decorate([
+exports.InvoicesModule = InvoicesModule;
+exports.InvoicesModule = InvoicesModule = __decorate([
     (0, common_1.Module)({
         imports: [typeorm_1.TypeOrmModule.forFeature([invoice_entity_1.Invoice])],
-        providers: [invoices_service_1.InvoiceService, invoices_resolver_1.InvoiceResolver],
-        exports: [invoices_service_1.InvoiceService],
+        providers: [invoices_service_1.InvoicesService, invoices_resolver_1.InvoicesResolver],
+        exports: [invoices_service_1.InvoicesService],
     })
-], InvoiceModule);
+], InvoicesModule);
 //# sourceMappingURL=invoices.module.js.map
