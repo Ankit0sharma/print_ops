@@ -12,127 +12,66 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.InvoiceResolver = void 0;
+exports.InvoicesResolver = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const invoices_service_1 = require("./invoices.service");
 const invoice_entity_1 = require("../../entities/invoice.entity");
 const create_invoice_input_1 = require("./dto/create-invoice.input");
 const update_invoice_input_1 = require("./dto/update-invoice.input");
-let InvoiceResolver = class InvoiceResolver {
-    constructor(invoiceService) {
-        this.invoiceService = invoiceService;
+const invoice_filter_input_1 = require("./dto/invoice-filter.input");
+const invoice_pagination_output_1 = require("./dto/invoice-pagination.output");
+const invoice_stats_output_1 = require("./dto/invoice-stats.output");
+let InvoicesResolver = class InvoicesResolver {
+    constructor(invoicesService) {
+        this.invoicesService = invoicesService;
     }
-    async getAllInvoices() {
-        return this.invoiceService.findAll();
+    async invoices(filterInput) {
+        return this.invoicesService.findInvoices(filterInput || {});
     }
-    async getInvoicesByStatus(status) {
-        return this.invoiceService.findByStatus(status);
+    async invoice(id) {
+        return this.invoicesService.findInvoice(id);
     }
-    async getOverdueInvoices() {
-        return this.invoiceService.findOverdue();
-    }
-    async getInvoicesByMonth(year, month) {
-        return this.invoiceService.findByMonth(year, month);
-    }
-    async getInvoicesByCustomer(customerId) {
-        return this.invoiceService.findByCustomer(customerId);
-    }
-    async getInvoicesByJob(jobId) {
-        return this.invoiceService.findByJob(jobId);
-    }
-    async getTotalOutstanding() {
-        return this.invoiceService.calculateTotalOutstanding();
-    }
-    async getTotalPaidThisMonth() {
-        return this.invoiceService.calculateTotalPaidThisMonth();
-    }
-    async getInvoice(id) {
-        return this.invoiceService.findOne(id);
+    async stats() {
+        return this.invoicesService.getStats();
     }
     async createInvoice(createInvoiceInput) {
-        return this.invoiceService.createInvoice(createInvoiceInput);
+        return this.invoicesService.createInvoice(createInvoiceInput);
     }
     async updateInvoice(id, updateInvoiceInput) {
-        return this.invoiceService.updateInvoice(id, updateInvoiceInput);
-    }
-    async updateInvoiceStatus(id, status) {
-        return this.invoiceService.updateStatus(id, status);
-    }
-    async markInvoiceAsSynced(id) {
-        return this.invoiceService.markAsSynced(id);
+        return this.invoicesService.updateInvoice(id, updateInvoiceInput);
     }
     async deleteInvoice(id) {
-        return this.invoiceService.deleteInvoice(id);
+        return this.invoicesService.deleteInvoice(id);
     }
 };
-exports.InvoiceResolver = InvoiceResolver;
+exports.InvoicesResolver = InvoicesResolver;
 __decorate([
-    (0, graphql_1.Query)(() => [invoice_entity_1.Invoice]),
+    (0, graphql_1.Query)(() => invoice_pagination_output_1.InvoicePaginationOutput),
+    __param(0, (0, graphql_1.Args)('filterInput', { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [invoice_filter_input_1.InvoiceFilterInput]),
     __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "getAllInvoices", null);
-__decorate([
-    (0, graphql_1.Query)(() => [invoice_entity_1.Invoice]),
-    __param(0, (0, graphql_1.Args)('status', { type: () => invoice_entity_1.InvoiceStatus })),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "getInvoicesByStatus", null);
-__decorate([
-    (0, graphql_1.Query)(() => [invoice_entity_1.Invoice]),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "getOverdueInvoices", null);
-__decorate([
-    (0, graphql_1.Query)(() => [invoice_entity_1.Invoice]),
-    __param(0, (0, graphql_1.Args)('year')),
-    __param(1, (0, graphql_1.Args)('month')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number]),
-    __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "getInvoicesByMonth", null);
-__decorate([
-    (0, graphql_1.Query)(() => [invoice_entity_1.Invoice]),
-    __param(0, (0, graphql_1.Args)('customerId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "getInvoicesByCustomer", null);
-__decorate([
-    (0, graphql_1.Query)(() => [invoice_entity_1.Invoice]),
-    __param(0, (0, graphql_1.Args)('jobId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "getInvoicesByJob", null);
-__decorate([
-    (0, graphql_1.Query)(() => graphql_1.Float),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "getTotalOutstanding", null);
-__decorate([
-    (0, graphql_1.Query)(() => graphql_1.Float),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "getTotalPaidThisMonth", null);
+], InvoicesResolver.prototype, "invoices", null);
 __decorate([
     (0, graphql_1.Query)(() => invoice_entity_1.Invoice),
     __param(0, (0, graphql_1.Args)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "getInvoice", null);
+], InvoicesResolver.prototype, "invoice", null);
+__decorate([
+    (0, graphql_1.Query)(() => invoice_stats_output_1.InvoiceStatsOutput),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], InvoicesResolver.prototype, "stats", null);
 __decorate([
     (0, graphql_1.Mutation)(() => invoice_entity_1.Invoice),
     __param(0, (0, graphql_1.Args)('createInvoiceInput')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_invoice_input_1.CreateInvoiceInput]),
     __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "createInvoice", null);
+], InvoicesResolver.prototype, "createInvoice", null);
 __decorate([
     (0, graphql_1.Mutation)(() => invoice_entity_1.Invoice),
     __param(0, (0, graphql_1.Args)('id')),
@@ -140,31 +79,16 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, update_invoice_input_1.UpdateInvoiceInput]),
     __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "updateInvoice", null);
-__decorate([
-    (0, graphql_1.Mutation)(() => invoice_entity_1.Invoice),
-    __param(0, (0, graphql_1.Args)('id')),
-    __param(1, (0, graphql_1.Args)('status')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
-    __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "updateInvoiceStatus", null);
-__decorate([
-    (0, graphql_1.Mutation)(() => invoice_entity_1.Invoice),
-    __param(0, (0, graphql_1.Args)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "markInvoiceAsSynced", null);
+], InvoicesResolver.prototype, "updateInvoice", null);
 __decorate([
     (0, graphql_1.Mutation)(() => Boolean),
     __param(0, (0, graphql_1.Args)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], InvoiceResolver.prototype, "deleteInvoice", null);
-exports.InvoiceResolver = InvoiceResolver = __decorate([
+], InvoicesResolver.prototype, "deleteInvoice", null);
+exports.InvoicesResolver = InvoicesResolver = __decorate([
     (0, graphql_1.Resolver)(() => invoice_entity_1.Invoice),
-    __metadata("design:paramtypes", [invoices_service_1.InvoiceService])
-], InvoiceResolver);
+    __metadata("design:paramtypes", [invoices_service_1.InvoicesService])
+], InvoicesResolver);
 //# sourceMappingURL=invoices.resolver.js.map

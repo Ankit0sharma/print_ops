@@ -10,7 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { CustomerModule } from './modules/customers/customers.module';
 import { JobModule } from './modules/jobs/jobs.module';
-import { InvoiceModule } from './modules/invoices/invoices.module';
+import { InvoicesModule } from './modules/invoices/invoices.module';
 import { MaterialModule } from './modules/materials/materials.module';
 import { CalendarModule } from './modules/calendar/calendar.module';
 
@@ -42,7 +42,7 @@ import { CalendarModule } from './modules/calendar/calendar.module';
     UsersModule,
     CustomerModule,
     JobModule,
-    InvoiceModule,
+    InvoicesModule,
     MaterialModule,
     CalendarModule,
   ],
