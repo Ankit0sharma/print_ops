@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.JobResolver = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const job_entity_1 = require("../../entities/job.entity");
+const job_enum_1 = require("../../common/enums/job.enum");
 const jobs_service_1 = require("./jobs.service");
 const create_job_input_1 = require("./dto/create-job.input");
 const update_job_input_1 = require("./dto/update-job.input");
@@ -88,7 +89,7 @@ __decorate([
 __decorate([
     (0, graphql_1.Mutation)(() => job_entity_1.Job),
     __param(0, (0, graphql_1.Args)('id')),
-    __param(1, (0, graphql_1.Args)('status')),
+    __param(1, (0, graphql_1.Args)('status', { type: () => job_enum_1.JobStatus })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)

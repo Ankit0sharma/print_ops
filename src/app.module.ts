@@ -12,6 +12,7 @@ import { CustomerModule } from './modules/customers/customers.module';
 import { JobModule } from './modules/jobs/jobs.module';
 import { InvoiceModule } from './modules/invoices/invoices.module';
 import { MaterialModule } from './modules/materials/materials.module';
+import { CalendarModule } from './modules/calendar/calendar.module';
 
 
 @Module({
@@ -43,6 +44,7 @@ import { MaterialModule } from './modules/materials/materials.module';
     JobModule,
     InvoiceModule,
     MaterialModule,
+    CalendarModule,
   ],
   controllers: [],
   providers: [AppResolver],

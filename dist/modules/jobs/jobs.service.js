@@ -24,16 +24,19 @@ let JobService = class JobService {
     }
     // Create a new job
     async createJob(createJobInput) {
+        // Extract assignedToId from createJobInput if it exists
+        const { assignedTo, ...jobData } = createJobInput;
         const job = this.jobRepository.create({
-            ...createJobInput,
-            status: job_enum_1.JobStatus.DESIGN
+            ...jobData,
+            status: job_enum_1.JobStatus.DESIGN,
+            assignedToId: assignedTo // Use assignedTo as assignedToId
         });
         try {
             const savedJob = await this.jobRepository.save(job);
-            // Load the job with customer relation
+            // Load the job with customer and assignedTo relations
             return await this.jobRepository.findOne({
                 where: { id: savedJob.id },
-                relations: ['customer']
+                relations: ['customer', 'assignedTo']
             });
         }
         catch (error) {
@@ -43,7 +46,8 @@ let JobService = class JobService {
     // Find all jobs
     async findAll(filter, sort) {
         const queryBuilder = this.jobRepository.createQueryBuilder('job')
-            .leftJoinAndSelect('job.customer', 'customer');
+            .leftJoinAndSelect('job.customer', 'customer')
+            .leftJoinAndSelect('job.assignedTo', 'assignedTo');
         if (filter) {
             if (filter.status) {
                 queryBuilder.andWhere('job.status = :status', { status: filter.status });
@@ -61,7 +65,7 @@ let JobService = class JobService {
                 queryBuilder.andWhere('job.customerId = :customerId', { customerId: filter.customerId });
             }
             if (filter.assignedTo) {
-                queryBuilder.andWhere('job.assignedTo = :assignedTo', { assignedTo: filter.assignedTo });
+                queryBuilder.andWhere('job.assignedToId = :assignedToId', { assignedToId: filter.assignedTo });
             }
             if (filter.searchTerm) {
                 queryBuilder.andWhere('(job.name ILIKE :search OR job.description ILIKE :search)', { search: `%${filter.searchTerm}%` });
@@ -87,7 +91,7 @@ let JobService = class JobService {
     async findByCustomer(customerId) {
         return this.jobRepository.find({
             where: { customerId },
-            relations: ['customer'],
+            relations: ['customer', 'assignedTo'],
         });
     }
     // Find active (non-completed) jobs
@@ -96,7 +100,7 @@ let JobService = class JobService {
             where: {
                 status: (0, typeorm_2.Not)(job_enum_1.JobStatus.COMPLETED)
             },
-            relations: ['customer'],
+            relations: ['customer', 'assignedTo'],
             order: { dueDate: 'ASC' }
         });
     }
@@ -109,14 +113,14 @@ let JobService = class JobService {
             where: {
                 dueDate: (0, typeorm_2.Between)(today, futureDate),
             },
-            relations: ['customer'],
+            relations: ['customer', 'assignedTo'],
         });
     }
     // Find a job by ID
     async findOne(id) {
         const job = await this.jobRepository.findOne({
             where: { id },
-            relations: ['customer']
+            relations: ['customer', 'assignedTo']
         });
         if (!job) {
             throw new common_1.NotFoundException(`Job with ID ${id} not found`);
@@ -126,13 +130,17 @@ let JobService = class JobService {
     // Update a job
     async updateJob(id, updateJobInput) {
         const job = await this.findOne(id);
+        // Extract assignedTo from updateJobInput if it exists
+        const { assignedTo, ...jobData } = updateJobInput;
         // Update the job with new values
         const updatedJob = {
             ...job,
-            ...updateJobInput
+            ...jobData,
+            assignedToId: assignedTo || job.assignedToId // Preserve existing assignedToId if not provided
         };
         try {
-            return await this.jobRepository.save(updatedJob);
+            await this.jobRepository.save(updatedJob);
+            return this.findOne(id); // Reload the job with relations
         }
         catch (error) {
             throw new Error(`Failed to update job: ${error.message}`);
@@ -142,7 +150,8 @@ let JobService = class JobService {
     async updateStatus(id, status) {
         const job = await this.findOne(id);
         job.status = status;
-        return this.jobRepository.save(job);
+        await this.jobRepository.save(job);
+        return this.findOne(id); // Reload the job with relations
     }
     // Delete a job
     async deleteJob(id) {
