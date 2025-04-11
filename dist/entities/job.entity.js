@@ -13,6 +13,7 @@ exports.Job = void 0;
 const typeorm_1 = require("typeorm");
 const graphql_1 = require("@nestjs/graphql");
 const customer_entity_1 = require("./customer.entity");
+const user_entity_1 = require("./user.entity");
 const job_enum_1 = require("../common/enums/job.enum");
 let Job = class Job {
 };
@@ -86,10 +87,15 @@ __decorate([
     __metadata("design:type", Date)
 ], Job.prototype, "dueDate", void 0);
 __decorate([
-    (0, graphql_1.Field)({ nullable: true }),
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
+    (0, graphql_1.Field)(() => user_entity_1.User, { nullable: true }),
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, { eager: true, nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: 'assignedToId' }),
+    __metadata("design:type", user_entity_1.User)
 ], Job.prototype, "assignedTo", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'assignedToId', type: 'uuid', nullable: true }),
+    __metadata("design:type", String)
+], Job.prototype, "assignedToId", void 0);
 __decorate([
     (0, graphql_1.Field)(() => customer_entity_1.Customer),
     (0, typeorm_1.ManyToOne)(() => customer_entity_1.Customer, customer => customer.jobs),

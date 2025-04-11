@@ -19,8 +19,6 @@ export class JobResolver {
     return this.jobService.findAll(filter, sort);
   }
 
-
-
   @Query(() => [Job])
   async upcomingJobs(
     @Args('days', { type: () => Int, defaultValue: 7 }) days: number
@@ -51,7 +49,7 @@ export class JobResolver {
   @Mutation(() => Job)
   async updateJobStatus(
     @Args('id') id: string,
-    @Args('status') status: string,
+    @Args('status', { type: () => JobStatus }) status: JobStatus,
   ): Promise<Job> {
     return this.jobService.updateStatus(id, status);
   }

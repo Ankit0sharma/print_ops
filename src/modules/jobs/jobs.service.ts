@@ -7,6 +7,7 @@ import { CreateJobInput } from './dto/create-job.input';
 import { UpdateJobInput } from './dto/update-job.input';
 import { FilterJobInput } from './dto/filter-job.input';
 import { SortJobInput } from './dto/sort-job.input';
+import { User } from '../../entities/user.entity';
 
 @Injectable()
 export class JobService {
@@ -17,17 +18,21 @@ export class JobService {
 
   // Create a new job
   async createJob(createJobInput: CreateJobInput): Promise<Job> {
+    // Extract assignedToId from createJobInput if it exists
+    const { assignedTo, ...jobData } = createJobInput;
+    
     const job = this.jobRepository.create({
-      ...createJobInput,
-      status: JobStatus.DESIGN
+      ...jobData,
+      status: JobStatus.DESIGN,
+      assignedToId: assignedTo // Use assignedTo as assignedToId
     });
     
     try {
       const savedJob = await this.jobRepository.save(job);
-      // Load the job with customer relation
+      // Load the job with customer and assignedTo relations
       return await this.jobRepository.findOne({
         where: { id: savedJob.id },
-        relations: ['customer']
+        relations: ['customer', 'assignedTo']
       });
     } catch (error) {
       throw new Error(`Failed to create job: ${error.message}`);
@@ -37,7 +42,8 @@ export class JobService {
   // Find all jobs
   async findAll(filter?: FilterJobInput, sort?: SortJobInput): Promise<Job[]> {
     const queryBuilder = this.jobRepository.createQueryBuilder('job')
-      .leftJoinAndSelect('job.customer', 'customer');
+      .leftJoinAndSelect('job.customer', 'customer')
+      .leftJoinAndSelect('job.assignedTo', 'assignedTo');
 
     if (filter) {
       if (filter.status) {
@@ -56,7 +62,7 @@ export class JobService {
         queryBuilder.andWhere('job.customerId = :customerId', { customerId: filter.customerId });
       }
       if (filter.assignedTo) {
-        queryBuilder.andWhere('job.assignedTo = :assignedTo', { assignedTo: filter.assignedTo });
+        queryBuilder.andWhere('job.assignedToId = :assignedToId', { assignedToId: filter.assignedTo });
       }
       if (filter.searchTerm) {
         queryBuilder.andWhere('(job.name ILIKE :search OR job.description ILIKE :search)', 
@@ -84,7 +90,7 @@ export class JobService {
   async findByCustomer(customerId: string): Promise<Job[]> {
     return this.jobRepository.find({
       where: { customerId },
-      relations: ['customer'],
+      relations: ['customer', 'assignedTo'],
     });
   }
 
@@ -94,7 +100,7 @@ export class JobService {
       where: {
         status: Not(JobStatus.COMPLETED)
       },
-      relations: ['customer'],
+      relations: ['customer', 'assignedTo'],
       order: { dueDate: 'ASC' }
     });
   }
@@ -109,7 +115,7 @@ export class JobService {
       where: {
         dueDate: Between(today, futureDate),
       },
-      relations: ['customer'],
+      relations: ['customer', 'assignedTo'],
     });
   }
 
@@ -117,7 +123,7 @@ export class JobService {
   async findOne(id: string): Promise<Job> {
     const job = await this.jobRepository.findOne({
       where: { id },
-      relations: ['customer']
+      relations: ['customer', 'assignedTo']
     });
 
     if (!job) {
@@ -130,25 +136,31 @@ export class JobService {
   // Update a job
   async updateJob(id: string, updateJobInput: UpdateJobInput): Promise<Job> {
     const job = await this.findOne(id);
+    
+    // Extract assignedTo from updateJobInput if it exists
+    const { assignedTo, ...jobData } = updateJobInput;
 
     // Update the job with new values
     const updatedJob = {
       ...job,
-      ...updateJobInput
+      ...jobData,
+      assignedToId: assignedTo || job.assignedToId // Preserve existing assignedToId if not provided
     };
 
     try {
-      return await this.jobRepository.save(updatedJob);
+      await this.jobRepository.save(updatedJob);
+      return this.findOne(id); // Reload the job with relations
     } catch (error) {
       throw new Error(`Failed to update job: ${error.message}`);
     }
   }
 
   // Update job status
-  async updateStatus(id: string, status: string): Promise<Job> {
+  async updateStatus(id: string, status: JobStatus): Promise<Job> {
     const job = await this.findOne(id);
-    job.status = status as any;
-    return this.jobRepository.save(job);
+    job.status = status;
+    await this.jobRepository.save(job);
+    return this.findOne(id); // Reload the job with relations
   }
 
   // Delete a job
