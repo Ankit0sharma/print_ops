@@ -1,10 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { ObjectType, Field, ID, registerEnumType, GraphQLISODateTime } from '@nestjs/graphql';
-
-export enum MaterialCategory {
-  SUBSTRATE = 'substrate',
-  VINYL = 'vinyl',
-}
+import { MaterialCategory } from '../common/enums/material.enum';
 
 registerEnumType(MaterialCategory, {
   name: 'MaterialCategory',
@@ -59,7 +55,7 @@ export class Material {
 
   @Field({ nullable: true })
   @Column({ type: 'varchar', nullable: true })
-  unit: string; // e.g., sheets, rolls
+  unit: string; // e.g., sheets, rolls, units
 
   @Field(() => GraphQLISODateTime)
   @CreateDateColumn()

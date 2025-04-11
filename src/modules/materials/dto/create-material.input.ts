@@ -1,6 +1,6 @@
 import { InputType, Field, Float } from '@nestjs/graphql';
 import { IsNotEmpty, IsEnum, IsNumber, IsOptional, IsBoolean, Min } from 'class-validator';
-import { MaterialCategory } from '../../../entities/material.entity';
+import { MaterialCategory } from '../../../common/enums/material.enum';
 
 @InputType()
 export class CreateMaterialInput {

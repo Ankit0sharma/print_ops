@@ -9,15 +9,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Material = exports.MaterialCategory = void 0;
+exports.Material = void 0;
 const typeorm_1 = require("typeorm");
 const graphql_1 = require("@nestjs/graphql");
-var MaterialCategory;
-(function (MaterialCategory) {
-    MaterialCategory["SUBSTRATE"] = "substrate";
-    MaterialCategory["VINYL"] = "vinyl";
-})(MaterialCategory || (exports.MaterialCategory = MaterialCategory = {}));
-(0, graphql_1.registerEnumType)(MaterialCategory, {
+const material_enum_1 = require("../common/enums/material.enum");
+(0, graphql_1.registerEnumType)(material_enum_1.MaterialCategory, {
     name: 'MaterialCategory',
     description: 'Material category types',
 });
@@ -40,10 +36,10 @@ __decorate([
     __metadata("design:type", String)
 ], Material.prototype, "name", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => MaterialCategory),
+    (0, graphql_1.Field)(() => material_enum_1.MaterialCategory),
     (0, typeorm_1.Column)({
         type: 'enum',
-        enum: MaterialCategory,
+        enum: material_enum_1.MaterialCategory,
     }),
     __metadata("design:type", String)
 ], Material.prototype, "category", void 0);
