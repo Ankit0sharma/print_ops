@@ -9,22 +9,32 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthResponseDto = void 0;
-// src/modules/auth/dto/auth.response.dto.ts
+exports.ResetPasswordInput = void 0;
 const graphql_1 = require("@nestjs/graphql");
-const user_entity_1 = require("../../../entities/user.entity");
-let AuthResponseDto = class AuthResponseDto {
+const class_validator_1 = require("class-validator");
+let ResetPasswordInput = class ResetPasswordInput {
 };
-exports.AuthResponseDto = AuthResponseDto;
+exports.ResetPasswordInput = ResetPasswordInput;
 __decorate([
     (0, graphql_1.Field)(),
+    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], AuthResponseDto.prototype, "token", void 0);
+], ResetPasswordInput.prototype, "email", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => user_entity_1.User),
-    __metadata("design:type", user_entity_1.User)
-], AuthResponseDto.prototype, "user", void 0);
-exports.AuthResponseDto = AuthResponseDto = __decorate([
-    (0, graphql_1.ObjectType)()
-], AuthResponseDto);
-//# sourceMappingURL=auth.response.dto.js.map
+    (0, graphql_1.Field)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], ResetPasswordInput.prototype, "otp", void 0);
+__decorate([
+    (0, graphql_1.Field)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.MinLength)(8),
+    __metadata("design:type", String)
+], ResetPasswordInput.prototype, "newPassword", void 0);
+exports.ResetPasswordInput = ResetPasswordInput = __decorate([
+    (0, graphql_1.InputType)()
+], ResetPasswordInput);
+//# sourceMappingURL=reset-password.input.js.map

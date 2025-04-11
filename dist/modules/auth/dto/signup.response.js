@@ -9,22 +9,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthResponseDto = void 0;
-// src/modules/auth/dto/auth.response.dto.ts
+exports.SignUpResponse = void 0;
 const graphql_1 = require("@nestjs/graphql");
-const user_entity_1 = require("../../../entities/user.entity");
-let AuthResponseDto = class AuthResponseDto {
+let SignUpResponse = class SignUpResponse {
 };
-exports.AuthResponseDto = AuthResponseDto;
+exports.SignUpResponse = SignUpResponse;
 __decorate([
     (0, graphql_1.Field)(),
     __metadata("design:type", String)
-], AuthResponseDto.prototype, "token", void 0);
+], SignUpResponse.prototype, "message", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => user_entity_1.User),
-    __metadata("design:type", user_entity_1.User)
-], AuthResponseDto.prototype, "user", void 0);
-exports.AuthResponseDto = AuthResponseDto = __decorate([
+    (0, graphql_1.Field)(),
+    __metadata("design:type", String)
+], SignUpResponse.prototype, "userId", void 0);
+exports.SignUpResponse = SignUpResponse = __decorate([
     (0, graphql_1.ObjectType)()
-], AuthResponseDto);
-//# sourceMappingURL=auth.response.dto.js.map
+], SignUpResponse);
+//# sourceMappingURL=signup.response.js.map

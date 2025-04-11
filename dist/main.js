@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const dotenv_1 = require("dotenv");
-(0, dotenv_1.config)({ path: `.env` });
+(0, dotenv_1.config)({ path: `.env.${process.env.NODE_ENV}` });
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors();
@@ -11,4 +11,4 @@ async function bootstrap() {
     console.log(`Server is running on port ${process.env.PORT || 3000}`);
 }
 bootstrap();
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=main.js.map

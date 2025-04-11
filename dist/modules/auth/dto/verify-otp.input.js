@@ -9,22 +9,25 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthResponseDto = void 0;
-// src/modules/auth/dto/auth.response.dto.ts
+exports.VerifyOtpInput = void 0;
 const graphql_1 = require("@nestjs/graphql");
-const user_entity_1 = require("../../../entities/user.entity");
-let AuthResponseDto = class AuthResponseDto {
+const class_validator_1 = require("class-validator");
+let VerifyOtpInput = class VerifyOtpInput {
 };
-exports.AuthResponseDto = AuthResponseDto;
+exports.VerifyOtpInput = VerifyOtpInput;
 __decorate([
     (0, graphql_1.Field)(),
+    (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], AuthResponseDto.prototype, "token", void 0);
+], VerifyOtpInput.prototype, "email", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => user_entity_1.User),
-    __metadata("design:type", user_entity_1.User)
-], AuthResponseDto.prototype, "user", void 0);
-exports.AuthResponseDto = AuthResponseDto = __decorate([
-    (0, graphql_1.ObjectType)()
-], AuthResponseDto);
-//# sourceMappingURL=auth.response.dto.js.map
+    (0, graphql_1.Field)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], VerifyOtpInput.prototype, "otp", void 0);
+exports.VerifyOtpInput = VerifyOtpInput = __decorate([
+    (0, graphql_1.InputType)()
+], VerifyOtpInput);
+//# sourceMappingURL=verify-otp.input.js.map
