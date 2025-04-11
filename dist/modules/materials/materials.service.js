@@ -17,21 +17,24 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const material_entity_1 = require("../../entities/material.entity");
+const material_usage_entity_1 = require("../../entities/material-usage.entity");
+const purchase_order_entity_1 = require("../../entities/purchase-order.entity");
+const material_enum_1 = require("../../common/enums/material.enum");
 let MaterialService = class MaterialService {
-    constructor(materialRepository) {
+    constructor(materialRepository, materialUsageRepository, purchaseOrderRepository) {
         this.materialRepository = materialRepository;
+        this.materialUsageRepository = materialUsageRepository;
+        this.purchaseOrderRepository = purchaseOrderRepository;
     }
     // Create a new material
     async createMaterial(createMaterialInput) {
         try {
-            // Check if material ID already exists
             const existingMaterial = await this.materialRepository.findOne({
                 where: { materialId: createMaterialInput.materialId },
             });
             if (existingMaterial) {
                 throw new common_1.BadRequestException('Material ID already exists');
             }
-            // Automatically set lowStock flag based on stock level
             if (createMaterialInput.stockLevel <= createMaterialInput.minimumStock) {
                 createMaterialInput.lowStock = true;
             }
@@ -42,9 +45,24 @@ let MaterialService = class MaterialService {
             throw new common_1.BadRequestException(error.message);
         }
     }
-    // Find all materials
-    async findAll() {
-        return this.materialRepository.find();
+    // Find all materials with optional filtering
+    async findAll(filter) {
+        const where = {};
+        if (filter) {
+            if (filter.category) {
+                where.category = filter.category;
+            }
+            if (filter.lowStockOnly) {
+                where.lowStock = true;
+            }
+            if (filter.supplier) {
+                where.supplier = filter.supplier;
+            }
+            if (filter.searchTerm) {
+                where.name = (0, typeorm_2.Like)(`%${filter.searchTerm}%`);
+            }
+        }
+        return this.materialRepository.find({ where });
     }
     // Find materials with low stock
     async findLowStock() {
@@ -82,7 +100,6 @@ let MaterialService = class MaterialService {
     async updateMaterial(id, updateMaterialInput) {
         try {
             const material = await this.findOne(id);
-            // If stock level is updated, check if we need to update the lowStock flag
             if (updateMaterialInput.stockLevel !== undefined) {
                 const minimumStock = updateMaterialInput.minimumStock !== undefined
                     ? updateMaterialInput.minimumStock
@@ -96,16 +113,83 @@ let MaterialService = class MaterialService {
             throw new common_1.BadRequestException(error.message);
         }
     }
-    // Update stock level
+    // Update material stock
     async updateStock(id, quantity) {
         const material = await this.findOne(id);
-        // Prevent negative stock
-        if (material.stockLevel + quantity < 0) {
-            throw new common_1.BadRequestException('Cannot reduce stock below zero');
+        const newStockLevel = material.stockLevel + quantity;
+        if (newStockLevel < 0) {
+            throw new common_1.BadRequestException('Insufficient stock');
         }
-        material.stockLevel += quantity;
-        material.lowStock = material.stockLevel <= material.minimumStock;
+        material.stockLevel = newStockLevel;
+        material.lowStock = newStockLevel <= material.minimumStock;
         return this.materialRepository.save(material);
+    }
+    // Record material usage
+    async recordUsage(materialId, quantity, jobId, notes) {
+        const material = await this.findOne(materialId);
+        if (material.stockLevel < quantity) {
+            throw new common_1.BadRequestException('Insufficient stock');
+        }
+        const usage = this.materialUsageRepository.create({
+            material,
+            quantity,
+            jobId,
+            notes,
+        });
+        await this.updateStock(materialId, -quantity);
+        return this.materialUsageRepository.save(usage);
+    }
+    // Get material usage history
+    async getMaterialUsageHistory(materialId) {
+        return this.materialUsageRepository.find({
+            where: { material: { id: materialId } },
+            relations: ['material'],
+            order: { usedAt: 'DESC' },
+        });
+    }
+    // Create purchase order
+    async createPurchaseOrder(materialId, quantity, unitPrice, notes) {
+        const material = await this.findOne(materialId);
+        const order = this.purchaseOrderRepository.create({
+            material,
+            quantity,
+            unitPrice,
+            totalPrice: quantity * unitPrice,
+            notes,
+        });
+        return this.purchaseOrderRepository.save(order);
+    }
+    // Get purchase orders
+    async getPurchaseOrders(status) {
+        const where = {};
+        if (status) {
+            where.status = status;
+        }
+        return this.purchaseOrderRepository.find({
+            where,
+            relations: ['material'],
+            order: { createdAt: 'DESC' },
+        });
+    }
+    // Update purchase order status
+    async updatePurchaseOrderStatus(orderId, status) {
+        const order = await this.purchaseOrderRepository.findOne({
+            where: { id: orderId },
+            relations: ['material'],
+        });
+        if (!order) {
+            throw new common_1.NotFoundException('Purchase order not found');
+        }
+        order.status = status;
+        if (status === material_enum_1.PurchaseOrderStatus.ORDERED) {
+            order.orderedAt = new Date();
+        }
+        else if (status === material_enum_1.PurchaseOrderStatus.RECEIVED) {
+            order.receivedAt = new Date();
+            // Update stock when order is received
+            await this.updateStock(order.material.id, order.quantity);
+        }
+        return this.purchaseOrderRepository.save(order);
     }
     // Delete a material
     async deleteMaterial(id) {
@@ -123,6 +207,10 @@ exports.MaterialService = MaterialService;
 exports.MaterialService = MaterialService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(material_entity_1.Material)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(material_usage_entity_1.MaterialUsage)),
+    __param(2, (0, typeorm_1.InjectRepository)(purchase_order_entity_1.PurchaseOrder)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
+        typeorm_2.Repository])
 ], MaterialService);
 //# sourceMappingURL=materials.service.js.map

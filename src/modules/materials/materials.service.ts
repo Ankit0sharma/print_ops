@@ -1,21 +1,28 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { Material } from '../../entities/material.entity';
+import { MaterialUsage } from '../../entities/material-usage.entity';
+import { PurchaseOrder } from '../../entities/purchase-order.entity';
+import { PurchaseOrderStatus } from '../../common/enums/material.enum';
 import { CreateMaterialInput } from './dto/create-material.input';
 import { UpdateMaterialInput } from './dto/update-material.input';
+import { FilterMaterialInput } from './dto/filter-material.input';
 
 @Injectable()
 export class MaterialService {
   constructor(
     @InjectRepository(Material)
     private materialRepository: Repository<Material>,
+    @InjectRepository(MaterialUsage)
+    private materialUsageRepository: Repository<MaterialUsage>,
+    @InjectRepository(PurchaseOrder)
+    private purchaseOrderRepository: Repository<PurchaseOrder>,
   ) {}
 
   // Create a new material
   async createMaterial(createMaterialInput: CreateMaterialInput): Promise<Material> {
     try {
-      // Check if material ID already exists
       const existingMaterial = await this.materialRepository.findOne({
         where: { materialId: createMaterialInput.materialId },
       });
@@ -24,7 +31,6 @@ export class MaterialService {
         throw new BadRequestException('Material ID already exists');
       }
 
-      // Automatically set lowStock flag based on stock level
       if (createMaterialInput.stockLevel <= createMaterialInput.minimumStock) {
         createMaterialInput.lowStock = true;
       }
@@ -36,9 +42,26 @@ export class MaterialService {
     }
   }
 
-  // Find all materials
-  async findAll(): Promise<Material[]> {
-    return this.materialRepository.find();
+  // Find all materials with optional filtering
+  async findAll(filter?: FilterMaterialInput): Promise<Material[]> {
+    const where: any = {};
+    
+    if (filter) {
+      if (filter.category) {
+        where.category = filter.category;
+      }
+      if (filter.lowStockOnly) {
+        where.lowStock = true;
+      }
+      if (filter.supplier) {
+        where.supplier = filter.supplier;
+      }
+      if (filter.searchTerm) {
+        where.name = Like(`%${filter.searchTerm}%`);
+      }
+    }
+
+    return this.materialRepository.find({ where });
   }
 
   // Find materials with low stock
@@ -86,7 +109,6 @@ export class MaterialService {
     try {
       const material = await this.findOne(id);
       
-      // If stock level is updated, check if we need to update the lowStock flag
       if (updateMaterialInput.stockLevel !== undefined) {
         const minimumStock = updateMaterialInput.minimumStock !== undefined 
           ? updateMaterialInput.minimumStock 
@@ -102,19 +124,100 @@ export class MaterialService {
     }
   }
 
-  // Update stock level
+  // Update material stock
   async updateStock(id: string, quantity: number): Promise<Material> {
     const material = await this.findOne(id);
+    const newStockLevel = material.stockLevel + quantity;
     
-    // Prevent negative stock
-    if (material.stockLevel + quantity < 0) {
-      throw new BadRequestException('Cannot reduce stock below zero');
+    if (newStockLevel < 0) {
+      throw new BadRequestException('Insufficient stock');
     }
     
-    material.stockLevel += quantity;
-    material.lowStock = material.stockLevel <= material.minimumStock;
+    material.stockLevel = newStockLevel;
+    material.lowStock = newStockLevel <= material.minimumStock;
     
     return this.materialRepository.save(material);
+  }
+
+  // Record material usage
+  async recordUsage(materialId: string, quantity: number, jobId: string, notes?: string): Promise<MaterialUsage> {
+    const material = await this.findOne(materialId);
+    
+    if (material.stockLevel < quantity) {
+      throw new BadRequestException('Insufficient stock');
+    }
+    
+    const usage = this.materialUsageRepository.create({
+      material,
+      quantity,
+      jobId,
+      notes,
+    });
+    
+    await this.updateStock(materialId, -quantity);
+    return this.materialUsageRepository.save(usage);
+  }
+
+  // Get material usage history
+  async getMaterialUsageHistory(materialId: string): Promise<MaterialUsage[]> {
+    return this.materialUsageRepository.find({
+      where: { material: { id: materialId } },
+      relations: ['material'],
+      order: { usedAt: 'DESC' },
+    });
+  }
+
+  // Create purchase order
+  async createPurchaseOrder(materialId: string, quantity: number, unitPrice: number, notes?: string): Promise<PurchaseOrder> {
+    const material = await this.findOne(materialId);
+    
+    const order = this.purchaseOrderRepository.create({
+      material,
+      quantity,
+      unitPrice,
+      totalPrice: quantity * unitPrice,
+      notes,
+    });
+    
+    return this.purchaseOrderRepository.save(order);
+  }
+
+  // Get purchase orders
+  async getPurchaseOrders(status?: PurchaseOrderStatus): Promise<PurchaseOrder[]> {
+    const where: any = {};
+    if (status) {
+      where.status = status;
+    }
+    
+    return this.purchaseOrderRepository.find({
+      where,
+      relations: ['material'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  // Update purchase order status
+  async updatePurchaseOrderStatus(orderId: string, status: PurchaseOrderStatus): Promise<PurchaseOrder> {
+    const order = await this.purchaseOrderRepository.findOne({
+      where: { id: orderId },
+      relations: ['material'],
+    });
+    
+    if (!order) {
+      throw new NotFoundException('Purchase order not found');
+    }
+    
+    order.status = status;
+    
+    if (status === PurchaseOrderStatus.ORDERED) {
+      order.orderedAt = new Date();
+    } else if (status === PurchaseOrderStatus.RECEIVED) {
+      order.receivedAt = new Date();
+      // Update stock when order is received
+      await this.updateStock(order.material.id, order.quantity);
+    }
+    
+    return this.purchaseOrderRepository.save(order);
   }
 
   // Delete a material

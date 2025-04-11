@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateMaterialInput = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const class_validator_1 = require("class-validator");
-const material_entity_1 = require("../../../entities/material.entity");
+const material_enum_1 = require("../../../common/enums/material.enum");
 let UpdateMaterialInput = class UpdateMaterialInput {
 };
 exports.UpdateMaterialInput = UpdateMaterialInput;
@@ -22,8 +22,8 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateMaterialInput.prototype, "name", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => material_entity_1.MaterialCategory, { nullable: true }),
-    (0, class_validator_1.IsEnum)(material_entity_1.MaterialCategory),
+    (0, graphql_1.Field)(() => material_enum_1.MaterialCategory, { nullable: true }),
+    (0, class_validator_1.IsEnum)(material_enum_1.MaterialCategory),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateMaterialInput.prototype, "category", void 0);

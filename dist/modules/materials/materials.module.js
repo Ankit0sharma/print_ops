@@ -12,14 +12,18 @@ const typeorm_1 = require("@nestjs/typeorm");
 const materials_service_1 = require("./materials.service");
 const materials_resolver_1 = require("./materials.resolver");
 const material_entity_1 = require("../../entities/material.entity");
+const material_usage_entity_1 = require("../../entities/material-usage.entity");
+const purchase_order_entity_1 = require("../../entities/purchase-order.entity");
 let MaterialModule = class MaterialModule {
 };
 exports.MaterialModule = MaterialModule;
 exports.MaterialModule = MaterialModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([material_entity_1.Material])],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([material_entity_1.Material, material_usage_entity_1.MaterialUsage, purchase_order_entity_1.PurchaseOrder])
+        ],
         providers: [materials_service_1.MaterialService, materials_resolver_1.MaterialResolver],
-        exports: [materials_service_1.MaterialService],
+        exports: [materials_service_1.MaterialService]
     })
 ], MaterialModule);
 //# sourceMappingURL=materials.module.js.map
