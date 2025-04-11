@@ -1,34 +1,39 @@
+// src/modules/auth/auth.resolver.ts
 import { Resolver, Mutation, Args } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
-import { LoginInput } from './dto/login.input';
-import { UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from './guards/gql-auth.guard';
-import { CurrentUser } from './decorators/current-user.decorator';
-import { User } from '../../entities/user.entity';
+import { SignUpInput } from './dto/signup.input';
 import { AuthResponseDto } from './dto/auth.response.dto';
+import { SignUpResponse } from './dto/signup.response';
+import { OtpResponse } from './dto/otp.response';
+import { ChangePasswordInput } from './dto/change-password.input';
 
-@Resolver()
+@Resolver('Auth')
 export class AuthResolver {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private authService: AuthService) {}
+
+  @Mutation(() => SignUpResponse)
+  async signUp(@Args('input') input: SignUpInput): Promise<SignUpResponse> {
+    return this.authService.signUp(input);
+  }
 
   @Mutation(() => AuthResponseDto)
-  async login(
-    @Args('username', { description: 'The email of the user' }) username: string,
-    @Args('password') password: string
+  async signIn(
+    @Args('email') email: string,
+    @Args('password') password: string,
   ): Promise<AuthResponseDto> {
-    return this.authService.login(username, password);
+    return this.authService.signIn(email, password);
   }
 
-  @Mutation(() => Boolean)
-  @UseGuards(GqlAuthGuard)
-  async logout(@CurrentUser() user: User): Promise<boolean> {
-    return true;
+  @Mutation(() => OtpResponse)
+  async signInWithOtp(@Args('email') email: string): Promise<OtpResponse> {
+    return this.authService.signInWithOtp(email);
   }
 
-  @Mutation(() => Boolean)
-  @UseGuards(GqlAuthGuard)
-  async validateToken(@Args('token') token: string): Promise<boolean> {
-    const user = await this.authService.validateToken(token);
-    return !!user;
+  @Mutation(() => OtpResponse)
+  async changePassword(
+    @Args('userId') userId: string,
+    @Args('input') input: ChangePasswordInput,
+  ): Promise<OtpResponse> {
+    return this.authService.changePassword(userId, input);
   }
 }

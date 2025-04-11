@@ -2,7 +2,10 @@ import { registerAs } from '@nestjs/config';
 import { config as dotenvConfig } from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
-dotenvConfig({ path: `.env` });
+
+// dotenvConfig({ path: `.env` });
+console.log("process.env.NODE_ENV----------",process.env.NODE_ENV)
+dotenvConfig({ path: `.env.${process.env.NODE_ENV}` });
 
 const commonConfig = {
     type: 'postgres',

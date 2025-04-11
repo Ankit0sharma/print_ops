@@ -8,70 +8,156 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
+// src/modules/auth/auth.service.ts
 const common_1 = require("@nestjs/common");
-const jwt_1 = require("@nestjs/jwt");
-const users_service_1 = require("../users/users.service");
-const config_1 = require("@nestjs/config");
+const typeorm_1 = require("@nestjs/typeorm");
+const typeorm_2 = require("typeorm");
+const user_entity_1 = require("../../entities/user.entity");
+const supabase_config_1 = require("../../config/supabase.config");
 let AuthService = class AuthService {
-    constructor(userService, jwtService, configService) {
-        this.userService = userService;
-        this.jwtService = jwtService;
-        this.configService = configService;
+    constructor(userRepository, supabaseService) {
+        this.userRepository = userRepository;
+        this.supabaseService = supabaseService;
     }
-    async login(username, password) {
+    async signUp(input) {
+        const supabase = this.supabaseService.getAdmin();
         try {
-            // Validate the user by checking the email and password
-            const user = await this.userService.validateUser(username, password);
-            if (!user) {
-                throw new common_1.UnauthorizedException('Invalid credentials');
+            // 1. Create user in Supabase
+            const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+                email: input.email,
+                password: input.password,
+                email_confirm: false,
+                user_metadata: {
+                    firstName: input.firstName,
+                    lastName: input.lastName,
+                    role: input.role,
+                },
+            });
+            if (authError) {
+                throw new Error(authError.message);
             }
-            // Generate JWT tokens (access and refresh)
-            const accessToken = this.generateToken(user);
-            const refreshToken = this.generateRefreshToken(user);
-            // Return response object
+            // 2. Create user in our database
+            const user = this.userRepository.create({
+                id: authData.user.id,
+                email: input.email,
+                firstName: input.firstName,
+                lastName: input.lastName,
+                role: input.role,
+                password: 'SUPABASE_MANAGED',
+            });
+            await this.userRepository.save(user);
+            // 3. Send OTP email
+            const { error: otpError } = await supabase.auth.signInWithOtp({
+                email: input.email,
+            });
+            if (otpError) {
+                throw new Error(otpError.message);
+            }
             return {
-                success: true,
-                message: 'Login successful',
-                accessToken,
-                refreshToken,
+                message: 'Please check your email for the verification code',
+                userId: authData.user.id,
+            };
+        }
+        catch (error) {
+            throw new Error(`Signup failed: ${error.message}`);
+        }
+    }
+    async signIn(email, password) {
+        const supabase = this.supabaseService.getClient();
+        try {
+            // 1. Sign in with Supabase
+            const { data: authData, error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+            if (error) {
+                throw new common_1.UnauthorizedException(error.message);
+            }
+            // 2. Get user from our database
+            const user = await this.userRepository.findOne({
+                where: { id: authData.user.id },
+            });
+            if (!user) {
+                throw new common_1.UnauthorizedException('User not found');
+            }
+            return {
+                token: authData.session.access_token,
                 user,
             };
         }
         catch (error) {
-            throw new common_1.UnauthorizedException(error.message);
+            throw new common_1.UnauthorizedException(`Login failed: ${error.message}`);
         }
     }
-    async validateToken(token) {
+    async signInWithOtp(email) {
+        const supabase = this.supabaseService.getClient();
         try {
-            const payload = this.jwtService.verify(token);
-            const user = await this.userService.findOne(payload.sub);
-            return user;
+            // Check if user exists in our database
+            const user = await this.userRepository.findOne({
+                where: { email },
+            });
+            if (!user) {
+                throw new common_1.UnauthorizedException('User not found');
+            }
+            // Send OTP for sign in
+            const { error } = await supabase.auth.signInWithOtp({
+                email,
+                options: {
+                    shouldCreateUser: false,
+                }
+            });
+            if (error) {
+                throw new Error(error.message);
+            }
+            return {
+                message: 'OTP sent to your email',
+            };
         }
         catch (error) {
-            return null;
+            throw new Error(`OTP request failed: ${error.message}`);
         }
     }
-    generateToken(user) {
-        const payload = {
-            email: user.email,
-            sub: user.id,
-        };
-        return this.jwtService.sign(payload);
-    }
-    generateRefreshToken(user) {
-        const payload = { email: user.email, sub: user.id };
-        return this.jwtService.sign(payload, {
-            expiresIn: '7d', // Set refresh token expiration time
-        });
+    async changePassword(userId, input) {
+        const supabase = this.supabaseService.getClient();
+        try {
+            const user = await this.userRepository.findOne({
+                where: { id: userId }
+            });
+            if (!user) {
+                throw new Error('User not found');
+            }
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: user.email,
+                password: input.currentPassword,
+            });
+            if (signInError) {
+                throw new Error('Current password is incorrect');
+            }
+            const { error: updateError } = await supabase.auth.updateUser({
+                password: input.newPassword,
+            });
+            if (updateError) {
+                throw new Error(updateError.message);
+            }
+            return {
+                message: 'Password changed successfully',
+            };
+        }
+        catch (error) {
+            throw new Error(`Password change failed: ${error.message}`);
+        }
     }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [users_service_1.UserService,
-        jwt_1.JwtService,
-        config_1.ConfigService])
+    __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        supabase_config_1.SupabaseService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

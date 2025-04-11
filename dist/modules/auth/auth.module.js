@@ -7,33 +7,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthModule = void 0;
+// src/modules/auth/auth.module.ts
 const common_1 = require("@nestjs/common");
-const jwt_1 = require("@nestjs/jwt");
-const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
-const user_entity_1 = require("../../entities/user.entity");
 const auth_service_1 = require("./auth.service");
 const auth_resolver_1 = require("./auth.resolver");
-const users_module_1 = require("../users/users.module");
+const user_entity_1 = require("../../entities/user.entity");
+const supabase_config_1 = require("../../config/supabase.config");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
 exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
-        imports: [
-            config_1.ConfigModule,
-            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]),
-            jwt_1.JwtModule.registerAsync({
-                imports: [config_1.ConfigModule],
-                useFactory: async (configService) => ({
-                    secret: configService.get('JWT_SECRET'),
-                    signOptions: { expiresIn: '24h' },
-                }),
-                inject: [config_1.ConfigService],
-            }),
-            users_module_1.UsersModule,
-        ],
-        providers: [auth_service_1.AuthService, auth_resolver_1.AuthResolver],
+        imports: [typeorm_1.TypeOrmModule.forFeature([user_entity_1.User])],
+        providers: [auth_service_1.AuthService, auth_resolver_1.AuthResolver, supabase_config_1.SupabaseService],
         exports: [auth_service_1.AuthService],
     })
 ], AuthModule);
