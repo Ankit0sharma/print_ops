@@ -1,7 +1,6 @@
 // src/modules/auth/dto/signup.input.ts
 import { Field, InputType } from '@nestjs/graphql';
-import { IsEmail, IsString, MinLength, IsEnum } from 'class-validator';
-import { UserRole } from '../../../entities/user.entity';
+import { IsEmail, IsString, MinLength, IsNumber } from 'class-validator';
 
 @InputType()
 export class SignUpInput {
@@ -22,7 +21,7 @@ export class SignUpInput {
   @IsString()
   lastName: string;
 
-  @Field(() => UserRole)
-  @IsEnum(UserRole)
-  role: UserRole;
+  @Field()
+  @IsNumber()
+  roleId: number;
 }

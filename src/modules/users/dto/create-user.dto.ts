@@ -1,22 +1,28 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { UserRole } from '../../../entities/user.entity';
+import { IsEmail, IsString, MinLength, IsUUID } from 'class-validator';
 
 @InputType()
 export class CreateUserInput {
   @Field()
+  @IsEmail()
   email: string;
 
   @Field()
+  @IsString()
+  @MinLength(6)
   password: string;
 
   @Field()
+  @IsString()
   firstName: string;
 
   @Field()
+  @IsString()
   lastName: string;
 
-  @Field(() => UserRole)
-  role: UserRole;
+  @Field()
+  @IsUUID()
+  roleId: string;
 
   @Field({ defaultValue: false })
   isTwoFactorEnabled: boolean;

@@ -9,20 +9,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = exports.UserRole = void 0;
+exports.User = void 0;
 const typeorm_1 = require("typeorm");
 const graphql_1 = require("@nestjs/graphql");
-var UserRole;
-(function (UserRole) {
-    UserRole["CORPORATE"] = "corporate";
-    UserRole["SMALL_BUSINESS"] = "small_business";
-    UserRole["ADMIN"] = "admin";
-})(UserRole || (exports.UserRole = UserRole = {}));
-(0, graphql_1.registerEnumType)(UserRole, {
-    name: 'UserRole',
-    description: 'User role types',
-});
+const role_entity_1 = require("./role.entity");
 let User = class User {
+    // Virtual field to get full name
+    get fullName() {
+        return `${this.firstName} ${this.lastName}`;
+    }
 };
 exports.User = User;
 __decorate([
@@ -50,14 +45,15 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "lastName", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => UserRole),
-    (0, typeorm_1.Column)({
-        type: 'enum',
-        enum: UserRole,
-        default: UserRole.SMALL_BUSINESS,
-    }),
-    __metadata("design:type", String)
+    (0, graphql_1.Field)(() => role_entity_1.Role),
+    (0, typeorm_1.ManyToOne)(() => role_entity_1.Role, role => role.users, { eager: true }),
+    (0, typeorm_1.JoinColumn)({ name: 'roleId' }),
+    __metadata("design:type", role_entity_1.Role)
 ], User.prototype, "role", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Number)
+], User.prototype, "roleId", void 0);
 __decorate([
     (0, graphql_1.Field)(),
     (0, typeorm_1.Column)({ default: false }),
@@ -74,6 +70,16 @@ __decorate([
 ], User.prototype, "isActive", void 0);
 __decorate([
     (0, graphql_1.Field)(),
+    (0, typeorm_1.Column)({ default: 'active' }),
+    __metadata("design:type", String)
+], User.prototype, "status", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => Date, { nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Date)
+], User.prototype, "lastActiveAt", void 0);
+__decorate([
+    (0, graphql_1.Field)(),
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], User.prototype, "createdAt", void 0);
@@ -82,6 +88,11 @@ __decorate([
     (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
 ], User.prototype, "updatedAt", void 0);
+__decorate([
+    (0, graphql_1.Field)(),
+    __metadata("design:type", String),
+    __metadata("design:paramtypes", [])
+], User.prototype, "fullName", null);
 exports.User = User = __decorate([
     (0, graphql_1.ObjectType)(),
     (0, typeorm_1.Entity)('users')

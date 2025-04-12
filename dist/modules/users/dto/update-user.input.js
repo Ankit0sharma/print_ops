@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateUserInput = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const class_validator_1 = require("class-validator");
-const user_entity_1 = require("../../../entities/user.entity");
 const create_user_input_1 = require("./create-user.input");
 let UpdateUserInput = class UpdateUserInput extends (0, graphql_1.PartialType)(create_user_input_1.CreateUserInput) {
 };
@@ -43,11 +42,11 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateUserInput.prototype, "lastName", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => user_entity_1.UserRole, { nullable: true }),
-    (0, class_validator_1.IsEnum)(user_entity_1.UserRole),
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], UpdateUserInput.prototype, "role", void 0);
+    __metadata("design:type", Number)
+], UpdateUserInput.prototype, "roleId", void 0);
 __decorate([
     (0, graphql_1.Field)({ nullable: true }),
     (0, class_validator_1.IsOptional)(),

@@ -1,16 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
-import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
-
-export enum UserRole {
-  CORPORATE = 'corporate',
-  SMALL_BUSINESS = 'small_business',
-  ADMIN = 'admin',
-}
-
-registerEnumType(UserRole, {
-  name: 'UserRole',
-  description: 'User role types',
-});
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { Role } from './role.entity';
 
 @ObjectType()
 @Entity('users')
@@ -34,13 +24,13 @@ export class User {
   @Column()
   lastName: string;
 
-  @Field(() => UserRole)
-  @Column({
-    type: 'enum',
-    enum: UserRole,
-    default: UserRole.SMALL_BUSINESS,
-  })
-  role: UserRole;
+  @Field(() => Role)
+  @ManyToOne(() => Role, role => role.users, { eager: true })
+  @JoinColumn({ name: 'roleId' })
+  role: Role;
+
+  @Column({ nullable: true })
+  roleId: number;
 
   @Field()
   @Column({ default: false })
@@ -54,10 +44,24 @@ export class User {
   isActive: boolean;
 
   @Field()
+  @Column({ default: 'active' })
+  status: string;
+
+  @Field(() => Date, { nullable: true })
+  @Column({ nullable: true })
+  lastActiveAt: Date;
+
+  @Field()
   @CreateDateColumn()
   createdAt: Date;
 
   @Field()
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // Virtual field to get full name
+  @Field()
+  get fullName(): string {
+    return `${this.firstName} ${this.lastName}`;
+  }
 }

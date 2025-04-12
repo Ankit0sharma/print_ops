@@ -3,6 +3,7 @@ import { UserService } from './users.service';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { User } from '../../entities/user.entity';
+import { Role } from '../../entities/role.entity';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -12,10 +13,10 @@ export class UserResolver {
   async getUsers(): Promise<User[]> {
     return this.userService.findAll();
   }
-  
-  @Mutation(() => User)
-  async createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
-    return this.userService.createUser(createUserInput);
+
+  @Query(() => [Role])
+  async getRoles(): Promise<Role[]> {
+    return this.userService.findAllRoles();
   }
 
   @Mutation(() => User)

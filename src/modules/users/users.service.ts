@@ -1,15 +1,18 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
+import { Role } from '../../entities/role.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private roleRepository: Repository<Role>,
   ) {}
 
   // Create a new user
@@ -24,13 +27,13 @@ export class UserService {
         throw new BadRequestException('Email is already in use');
       }
 
-      // Hash password before saving
-      // const hashedPassword = await bcrypt.hash(createUserInput.password, 10);
       const newUser = this.userRepository.create({
         ...createUserInput,
+        status: 'active',
+        lastActiveAt: new Date(),
       });
 
-      return this.userRepository.save(newUser);
+      return await this.userRepository.save(newUser);
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -40,6 +43,7 @@ export class UserService {
   async findByEmail(email: string): Promise<User> {
     return this.userRepository.findOne({
       where: { email },
+      relations: ['role'],
     });
   }
 
@@ -47,6 +51,22 @@ export class UserService {
   async findOne(id: string): Promise<User> {
     return this.userRepository.findOne({
       where: { id },
+      relations: ['role'],
+    });
+  }
+
+  // Find all users
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find({
+      relations: ['role'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  // Update user's last active timestamp
+  async updateLastActive(id: string): Promise<void> {
+    await this.userRepository.update(id, {
+      lastActiveAt: new Date()
     });
   }
 
@@ -60,6 +80,13 @@ export class UserService {
     if (password !== user.password) {
       throw new BadRequestException('Invalid credentials');
     }
+
+    if (!user.isActive) {
+      throw new BadRequestException('User account is inactive');
+    }
+
+    // Update last active timestamp
+    await this.updateLastActive(user.id);
 
     return user;
   }
@@ -79,10 +106,6 @@ export class UserService {
     }
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userRepository.find(); 
-  }
-
   // Delete a user
   async deleteUser(id: string): Promise<void> {
     try {
@@ -95,5 +118,13 @@ export class UserService {
     } catch (error) {
       throw new BadRequestException(error.message);
     }
+  }
+
+  // Find all roles with permissions
+  async findAllRoles(): Promise<Role[]> {
+    return this.roleRepository.find({
+      relations: ['permissions'],
+      order: { id: 'ASC' }
+    });
   }
 }

@@ -1,10 +1,9 @@
 import { registerAs } from '@nestjs/config';
 import { config as dotenvConfig } from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import InitSeeder from '../seeds/init.seeder';
 
 
-// dotenvConfig({ path: `.env` });
-console.log("process.env.NODE_ENV----------",process.env.NODE_ENV)
 dotenvConfig({ path: `.env.${process.env.NODE_ENV}` });
 
 const commonConfig = {
@@ -34,4 +33,5 @@ export const connectionSource = new DataSource({
     ...commonConfig,
     entities: ['src/**/*.entity{.ts,.js}'],
     migrations: ['src/migrations/*{.ts,.js}'],
+    seeds: [InitSeeder]
   } as DataSourceOptions);
