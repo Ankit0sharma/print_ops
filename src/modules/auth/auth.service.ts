@@ -28,7 +28,7 @@ export class AuthService {
         user_metadata: {
           firstName: input.firstName,
           lastName: input.lastName,
-          role: input.role,
+          roleId: input.roleId,
         },
       });
 
@@ -42,7 +42,7 @@ export class AuthService {
         email: input.email,
         firstName: input.firstName,
         lastName: input.lastName,
-        role: input.role,
+        roleId: input.roleId,
         password: 'SUPABASE_MANAGED',
       });
 

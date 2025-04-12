@@ -17,9 +17,11 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("../../entities/user.entity");
+const role_entity_1 = require("../../entities/role.entity");
 let UserService = class UserService {
-    constructor(userRepository) {
+    constructor(userRepository, roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
     // Create a new user
     async createUser(createUserInput) {
@@ -31,12 +33,12 @@ let UserService = class UserService {
             if (existingUser) {
                 throw new common_1.BadRequestException('Email is already in use');
             }
-            // Hash password before saving
-            // const hashedPassword = await bcrypt.hash(createUserInput.password, 10);
             const newUser = this.userRepository.create({
                 ...createUserInput,
+                status: 'active',
+                lastActiveAt: new Date(),
             });
-            return this.userRepository.save(newUser);
+            return await this.userRepository.save(newUser);
         }
         catch (error) {
             throw new common_1.BadRequestException(error.message);
@@ -46,12 +48,27 @@ let UserService = class UserService {
     async findByEmail(email) {
         return this.userRepository.findOne({
             where: { email },
+            relations: ['role'],
         });
     }
     // Find a user by ID
     async findOne(id) {
         return this.userRepository.findOne({
             where: { id },
+            relations: ['role'],
+        });
+    }
+    // Find all users
+    async findAll() {
+        return this.userRepository.find({
+            relations: ['role'],
+            order: { createdAt: 'DESC' },
+        });
+    }
+    // Update user's last active timestamp
+    async updateLastActive(id) {
+        await this.userRepository.update(id, {
+            lastActiveAt: new Date()
         });
     }
     // Validate a user by checking email and password
@@ -63,6 +80,11 @@ let UserService = class UserService {
         if (password !== user.password) {
             throw new common_1.BadRequestException('Invalid credentials');
         }
+        if (!user.isActive) {
+            throw new common_1.BadRequestException('User account is inactive');
+        }
+        // Update last active timestamp
+        await this.updateLastActive(user.id);
         return user;
     }
     // Update a user
@@ -79,9 +101,6 @@ let UserService = class UserService {
             throw new common_1.BadRequestException(error.message);
         }
     }
-    async findAll() {
-        return this.userRepository.find();
-    }
     // Delete a user
     async deleteUser(id) {
         try {
@@ -95,11 +114,20 @@ let UserService = class UserService {
             throw new common_1.BadRequestException(error.message);
         }
     }
+    // Find all roles with permissions
+    async findAllRoles() {
+        return this.roleRepository.find({
+            relations: ['permissions'],
+            order: { id: 'ASC' }
+        });
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(role_entity_1.Role)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository])
 ], UserService);
 //# sourceMappingURL=users.service.js.map

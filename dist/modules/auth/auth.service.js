@@ -35,7 +35,7 @@ let AuthService = class AuthService {
                 user_metadata: {
                     firstName: input.firstName,
                     lastName: input.lastName,
-                    role: input.role,
+                    roleId: input.roleId,
                 },
             });
             if (authError) {
@@ -47,7 +47,7 @@ let AuthService = class AuthService {
                 email: input.email,
                 firstName: input.firstName,
                 lastName: input.lastName,
-                role: input.role,
+                roleId: input.roleId,
                 password: 'SUPABASE_MANAGED',
             });
             await this.userRepository.save(user);
