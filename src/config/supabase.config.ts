@@ -15,7 +15,7 @@ export class SupabaseService {
 
     this.supabaseAdmin = createClient(
       process.env.SUPABASE_URL || "https://unzxwwgyqhtuhvgrsigb.supabase.co",
-      process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwYmdpaWZobHhvZm5ydHpsdHpqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDI4MDM2OSwiZXhwIjoyMDU5ODU2MzY5fQ.bGYw1i7cigV-IusEABjBc_PxW5ebvMumxbKGrnMugUc"
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwYmdpaWZobHhvZm5ydHpsdHpqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDI4MDM2OSwiZXhwIjoyMDU5ODU2MzY5fQ.bGYw1i7cigV-IusEABjBc_PxW5ebvMumxbKGrnMugUc"
     );
 
     console.log('Supabase URL:-------------'); 
