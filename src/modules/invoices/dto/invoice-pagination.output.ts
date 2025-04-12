@@ -15,6 +15,6 @@ export class InvoicePaginationOutput {
   @Field(() => Int)
   limit: number;
 
-  @Field(() => Int)
-  totalPages: number;
+  @Field()
+  hasMore: boolean;
 }

@@ -19,6 +19,7 @@ export enum InvoiceSortField {
   AMOUNT = 'amount',
   DUE_DATE = 'dueDate',
   STATUS = 'status',
+  INVOICE_NUMBER = 'invoiceNumber',
 }
 
 export enum SortDirection {

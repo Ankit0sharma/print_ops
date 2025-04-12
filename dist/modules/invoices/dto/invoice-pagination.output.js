@@ -32,9 +32,9 @@ __decorate([
     __metadata("design:type", Number)
 ], InvoicePaginationOutput.prototype, "limit", void 0);
 __decorate([
-    (0, graphql_1.Field)(() => graphql_1.Int),
-    __metadata("design:type", Number)
-], InvoicePaginationOutput.prototype, "totalPages", void 0);
+    (0, graphql_1.Field)(),
+    __metadata("design:type", Boolean)
+], InvoicePaginationOutput.prototype, "hasMore", void 0);
 exports.InvoicePaginationOutput = InvoicePaginationOutput = __decorate([
     (0, graphql_1.ObjectType)()
 ], InvoicePaginationOutput);

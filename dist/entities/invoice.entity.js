@@ -78,7 +78,7 @@ __decorate([
 ], Invoice.prototype, "invoiceNumber", void 0);
 __decorate([
     (0, graphql_1.Field)(() => customer_entity_1.Customer),
-    (0, typeorm_1.ManyToOne)(() => customer_entity_1.Customer),
+    (0, typeorm_1.ManyToOne)(() => customer_entity_1.Customer, { eager: true }),
     (0, typeorm_1.JoinColumn)({ name: 'customerId' }),
     __metadata("design:type", customer_entity_1.Customer)
 ], Invoice.prototype, "customer", void 0);
@@ -89,7 +89,7 @@ __decorate([
 ], Invoice.prototype, "customerId", void 0);
 __decorate([
     (0, graphql_1.Field)(() => job_entity_1.Job, { nullable: true }),
-    (0, typeorm_1.ManyToOne)(() => job_entity_1.Job, { nullable: true }),
+    (0, typeorm_1.ManyToOne)(() => job_entity_1.Job, { nullable: true, eager: true }),
     (0, typeorm_1.JoinColumn)({ name: 'jobId' }),
     __metadata("design:type", job_entity_1.Job)
 ], Invoice.prototype, "job", void 0);

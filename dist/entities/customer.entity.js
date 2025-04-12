@@ -13,6 +13,7 @@ exports.Customer = void 0;
 const typeorm_1 = require("typeorm");
 const graphql_1 = require("@nestjs/graphql");
 const job_entity_1 = require("./job.entity");
+const invoice_entity_1 = require("./invoice.entity");
 const customer_enum_1 = require("../common/enums/customer.enum");
 let Customer = class Customer {
     transformCustomerType() {
@@ -121,9 +122,15 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Customer.prototype, "isActive", void 0);
 __decorate([
+    (0, graphql_1.Field)(() => [job_entity_1.Job], { nullable: true }),
     (0, typeorm_1.OneToMany)(() => job_entity_1.Job, job => job.customer),
     __metadata("design:type", Array)
 ], Customer.prototype, "jobs", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => [invoice_entity_1.Invoice], { nullable: true }),
+    (0, typeorm_1.OneToMany)(() => invoice_entity_1.Invoice, invoice => invoice.customer),
+    __metadata("design:type", Array)
+], Customer.prototype, "invoices", void 0);
 __decorate([
     (0, graphql_1.Field)(),
     (0, typeorm_1.CreateDateColumn)(),

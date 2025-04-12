@@ -22,6 +22,7 @@ var InvoiceSortField;
     InvoiceSortField["AMOUNT"] = "amount";
     InvoiceSortField["DUE_DATE"] = "dueDate";
     InvoiceSortField["STATUS"] = "status";
+    InvoiceSortField["INVOICE_NUMBER"] = "invoiceNumber";
 })(InvoiceSortField || (exports.InvoiceSortField = InvoiceSortField = {}));
 var SortDirection;
 (function (SortDirection) {

@@ -14,6 +14,7 @@ const typeorm_1 = require("typeorm");
 const graphql_1 = require("@nestjs/graphql");
 const customer_entity_1 = require("./customer.entity");
 const user_entity_1 = require("./user.entity");
+const invoice_entity_1 = require("./invoice.entity");
 const job_enum_1 = require("../common/enums/job.enum");
 let Job = class Job {
 };
@@ -98,7 +99,7 @@ __decorate([
 ], Job.prototype, "assignedToId", void 0);
 __decorate([
     (0, graphql_1.Field)(() => customer_entity_1.Customer),
-    (0, typeorm_1.ManyToOne)(() => customer_entity_1.Customer, customer => customer.jobs),
+    (0, typeorm_1.ManyToOne)(() => customer_entity_1.Customer, customer => customer.jobs, { eager: true }),
     (0, typeorm_1.JoinColumn)({ name: 'customerId' }),
     __metadata("design:type", customer_entity_1.Customer)
 ], Job.prototype, "customer", void 0);
@@ -106,6 +107,11 @@ __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], Job.prototype, "customerId", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => [invoice_entity_1.Invoice], { nullable: true }),
+    (0, typeorm_1.OneToMany)(() => invoice_entity_1.Invoice, invoice => invoice.job),
+    __metadata("design:type", Array)
+], Job.prototype, "invoices", void 0);
 __decorate([
     (0, graphql_1.Field)(),
     (0, typeorm_1.Column)({ default: false }),

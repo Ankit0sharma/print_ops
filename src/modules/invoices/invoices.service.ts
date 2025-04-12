@@ -8,16 +8,45 @@ import { InvoiceFilterInput } from './dto/invoice-filter.input';
 import { InvoicePaginationOutput } from './dto/invoice-pagination.output';
 import { InvoiceStatsOutput } from './dto/invoice-stats.output';
 import { InvoiceStatus, InvoiceSortField, SortDirection } from '../../common/enums/invoice.enum';
+import { Customer } from '../../entities/customer.entity';
+import { Job } from '../../entities/job.entity';
 
 @Injectable()
 export class InvoicesService {
   constructor(
     @InjectRepository(Invoice)
     private readonly invoiceRepository: Repository<Invoice>,
+    @InjectRepository(Customer)
+    private readonly customerRepository: Repository<Customer>,
+    @InjectRepository(Job)
+    private readonly jobRepository: Repository<Job>,
   ) {}
 
   // Create a new invoice
   async createInvoice(createInvoiceInput: CreateInvoiceInput): Promise<Invoice> {
+    // First, verify that the customer exists
+    const customer = await this.customerRepository.findOne({
+      where: { id: createInvoiceInput.customerId }
+    });
+
+    if (!customer) {
+      throw new NotFoundException(`Customer with ID ${createInvoiceInput.customerId} not found`);
+    }
+
+    // If jobId is provided, verify that the job exists and belongs to the customer
+    if (createInvoiceInput.jobId) {
+      const job = await this.jobRepository.findOne({
+        where: { 
+          id: createInvoiceInput.jobId,
+          customerId: createInvoiceInput.customerId
+        }
+      });
+
+      if (!job) {
+        throw new NotFoundException(`Job with ID ${createInvoiceInput.jobId} not found or does not belong to the customer`);
+      }
+    }
+
     const items = createInvoiceInput.items.map(item => ({
       ...item,
       amount: item.quantity * item.unitPrice,
@@ -34,9 +63,16 @@ export class InvoicesService {
       total,
       amount: total,
       status: createInvoiceInput.status || InvoiceStatus.DRAFT,
+      issueDate: createInvoiceInput.date,
     });
 
-    return this.invoiceRepository.save(invoice);
+    const savedInvoice = await this.invoiceRepository.save(invoice);
+
+    // Reload the invoice with all relations
+    return this.invoiceRepository.findOne({
+      where: { id: savedInvoice.id },
+      relations: ['customer', 'job']
+    });
   }
 
   // Find all invoices
@@ -100,26 +136,129 @@ export class InvoicesService {
     // Apply pagination
     queryBuilder.skip(skip).take(limit);
 
-    // Get results
-    const items = await queryBuilder.getMany();
-    
+    // Get invoices
+    const invoices = await queryBuilder.getMany();
+
     return {
-      items,
+      items: invoices,
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
+      hasMore: total > skip + limit,
     };
   }
 
+  private calculateSubtotal(items: InvoiceItem[]): number {
+    return items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  }
+
   private getSortColumn(sortField: InvoiceSortField): string {
-    const sortMap = {
-      [InvoiceSortField.DATE]: 'invoice.issueDate',
-      [InvoiceSortField.AMOUNT]: 'invoice.amount',
-      [InvoiceSortField.DUE_DATE]: 'invoice.dueDate',
-      [InvoiceSortField.STATUS]: 'invoice.status',
-    };
-    return sortMap[sortField] || 'invoice.issueDate';
+    switch (sortField) {
+      case InvoiceSortField.DATE:
+        return 'invoice.issueDate';
+      case InvoiceSortField.DUE_DATE:
+        return 'invoice.dueDate';
+      case InvoiceSortField.INVOICE_NUMBER:
+        return 'invoice.invoiceNumber';
+      case InvoiceSortField.AMOUNT:
+        return 'invoice.amount';
+      case InvoiceSortField.STATUS:
+        return 'invoice.status';
+      default:
+        return 'invoice.issueDate';
+    }
+  }
+
+  // Find a invoice by ID
+  async findInvoice(id: string): Promise<Invoice> {
+    const invoice = await this.invoiceRepository.findOne({
+      where: { id },
+      relations: ['customer', 'job'],
+    });
+    
+    if (!invoice) {
+      throw new NotFoundException(`Invoice with ID ${id} not found`);
+    }
+    
+    return invoice;
+  }
+
+  // Update an invoice
+  async updateInvoice(id: string, updateInvoiceInput: UpdateInvoiceInput): Promise<Invoice> {
+    const invoice = await this.findInvoice(id);
+    
+    const updates: Partial<Invoice> = {};
+    
+    // Copy all fields except items and billingAddress
+    Object.keys(updateInvoiceInput).forEach(key => {
+      if (key !== 'items' && key !== 'billingAddress') {
+        updates[key] = updateInvoiceInput[key];
+      }
+    });
+
+    // Handle items update
+    if (updateInvoiceInput.items) {
+      updates.items = updateInvoiceInput.items.map(item => ({
+        ...item,
+        amount: item.quantity * item.unitPrice,
+      }));
+      const subtotal = this.calculateSubtotal(updates.items);
+      const taxRate = updates.taxRate || invoice.taxRate || 0;
+      const total = subtotal * (1 + taxRate / 100);
+      
+      updates.subtotal = subtotal;
+      updates.total = total;
+      updates.amount = total;
+    }
+
+    // Handle billing address update
+    if (updateInvoiceInput.billingAddress) {
+      const { street, city, state, zip, country } = updateInvoiceInput.billingAddress;
+      if (street && city && state && zip && country) {
+        updates.billingAddress = updateInvoiceInput.billingAddress as BillingAddress;
+      }
+    }
+
+    Object.assign(invoice, updates);
+    return this.invoiceRepository.save(invoice);
+  }
+
+  // Update invoice status
+  async updateInvoiceStatus(id: string, status: InvoiceStatus): Promise<Invoice> {
+    const invoice = await this.findInvoice(id);
+    invoice.status = status;
+    return this.invoiceRepository.save(invoice);
+  }
+
+  // Mark invoice as synced with QuickBooks
+  async markInvoiceAsSynced(id: string): Promise<Invoice> {
+    const invoice = await this.findInvoice(id);
+    invoice.quickbooksSynced = true;
+    return this.invoiceRepository.save(invoice);
+  }
+
+  // Sync multiple invoices with QuickBooks
+  async syncMultipleInvoices(ids: string[]): Promise<boolean> {
+    try {
+      await this.invoiceRepository.update(
+        { id: In(ids) },
+        { quickbooksSynced: true }
+      );
+      return true;
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
+  }
+
+  // Delete an invoice
+  async deleteInvoice(id: string): Promise<boolean> {
+    try {
+      const invoice = await this.findInvoice(id);
+      await this.invoiceRepository.remove(invoice);
+      return true;
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   // Find invoices by status
@@ -217,101 +356,5 @@ export class InvoicesService {
       pendingCount,
       overdueCount,
     };
-  }
-
-  // Find a invoice by ID
-  async findInvoice(id: string): Promise<Invoice> {
-    const invoice = await this.invoiceRepository.findOne({
-      where: { id },
-      relations: ['customer', 'job'],
-    });
-    
-    if (!invoice) {
-      throw new NotFoundException(`Invoice with ID ${id} not found`);
-    }
-    
-    return invoice;
-  }
-
-  // Update an invoice
-  async updateInvoice(id: string, updateInvoiceInput: UpdateInvoiceInput): Promise<Invoice> {
-    const invoice = await this.findInvoice(id);
-    
-    const updates: Partial<Invoice> = {};
-    
-    // Copy all fields except items and billingAddress
-    Object.keys(updateInvoiceInput).forEach(key => {
-      if (key !== 'items' && key !== 'billingAddress') {
-        updates[key] = updateInvoiceInput[key];
-      }
-    });
-
-    // Handle items update
-    if (updateInvoiceInput.items) {
-      updates.items = updateInvoiceInput.items.map(item => ({
-        ...item,
-        amount: item.quantity * item.unitPrice,
-      }));
-      const subtotal = this.calculateSubtotal(updates.items);
-      const taxRate = updates.taxRate || invoice.taxRate || 0;
-      const total = subtotal * (1 + taxRate / 100);
-      
-      updates.subtotal = subtotal;
-      updates.total = total;
-      updates.amount = total;
-    }
-
-    // Handle billing address update
-    if (updateInvoiceInput.billingAddress) {
-      const { street, city, state, zip, country } = updateInvoiceInput.billingAddress;
-      if (street && city && state && zip && country) {
-        updates.billingAddress = updateInvoiceInput.billingAddress as BillingAddress;
-      }
-    }
-
-    Object.assign(invoice, updates);
-    return this.invoiceRepository.save(invoice);
-  }
-
-  // Update invoice status
-  async updateInvoiceStatus(id: string, status: InvoiceStatus): Promise<Invoice> {
-    const invoice = await this.findInvoice(id);
-    invoice.status = status;
-    return this.invoiceRepository.save(invoice);
-  }
-
-  // Mark invoice as synced with QuickBooks
-  async markInvoiceAsSynced(id: string): Promise<Invoice> {
-    const invoice = await this.findInvoice(id);
-    invoice.quickbooksSynced = true;
-    return this.invoiceRepository.save(invoice);
-  }
-
-  // Sync multiple invoices with QuickBooks
-  async syncMultipleInvoices(ids: string[]): Promise<boolean> {
-    try {
-      await this.invoiceRepository.update(
-        { id: In(ids) },
-        { quickbooksSynced: true }
-      );
-      return true;
-    } catch (error) {
-      throw new NotFoundException(error.message);
-    }
-  }
-
-  // Delete an invoice
-  async deleteInvoice(id: string): Promise<boolean> {
-    try {
-      const invoice = await this.findInvoice(id);
-      await this.invoiceRepository.remove(invoice);
-      return true;
-    } catch (error) {
-      throw new NotFoundException(error.message);
-    }
-  }
-
-  private calculateSubtotal(items: InvoiceItem[]): number {
-    return items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
   }
 }
