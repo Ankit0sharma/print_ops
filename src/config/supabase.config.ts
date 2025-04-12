@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { config as dotenvConfig } from 'dotenv';
 
+dotenvConfig({ path: `.env.${process.env.NODE_ENV}` });
 @Injectable()
 export class SupabaseService {
   private supabaseClient: SupabaseClient;
@@ -9,12 +11,12 @@ export class SupabaseService {
 
   constructor(private configService: ConfigService) {
     this.supabaseClient = createClient(
-      process.env.SUPABASE_URL || "https://unzxwwgyqhtuhvgrsigb.supabase.co",
-      process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuenh3d2d5cWh0dWh2Z3JzaWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM4MjI2MDUsImV4cCI6MjA1OTM5ODYwNX0.x4swRiQb4PS3iSBQN0k9HpCI94sgZzha1zzx943S2lE"
+      "https://ppbgiifhlxofnrtzltzj.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwYmdpaWZobHhvZm5ydHpsdHpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyODAzNjksImV4cCI6MjA1OTg1NjM2OX0.yJZubpnf6U6XhA3GRBsvTp3hd1K_BoJ041PxMe-9Yaw"
     );
 
     this.supabaseAdmin = createClient(
-      process.env.SUPABASE_URL || "https://unzxwwgyqhtuhvgrsigb.supabase.co",
+      "https://ppbgiifhlxofnrtzltzj.supabase.co",
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwYmdpaWZobHhvZm5ydHpsdHpqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDI4MDM2OSwiZXhwIjoyMDU5ODU2MzY5fQ.bGYw1i7cigV-IusEABjBc_PxW5ebvMumxbKGrnMugUc"
     );
 
