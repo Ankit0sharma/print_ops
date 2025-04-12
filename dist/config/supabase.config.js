@@ -13,8 +13,8 @@ exports.SupabaseService = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const supabase_js_1 = require("@supabase/supabase-js");
-// import { config as dotenvConfig } from 'dotenv';
-// dotenvConfig({ path: `.env.${process.env.NODE_ENV}` });
+const dotenv_1 = require("dotenv");
+(0, dotenv_1.config)({ path: `.env.${process.env.NODE_ENV}` });
 let SupabaseService = class SupabaseService {
     constructor(configService) {
         this.configService = configService;

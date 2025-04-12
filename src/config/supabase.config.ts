@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-// import { config as dotenvConfig } from 'dotenv';
+import { config as dotenvConfig } from 'dotenv';
 
-// dotenvConfig({ path: `.env.${process.env.NODE_ENV}` });
+dotenvConfig({ path: `.env.${process.env.NODE_ENV}` });
 @Injectable()
 export class SupabaseService {
   private supabaseClient: SupabaseClient;
