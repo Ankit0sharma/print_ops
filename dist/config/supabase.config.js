@@ -13,14 +13,11 @@ exports.SupabaseService = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const supabase_js_1 = require("@supabase/supabase-js");
-const dotenv_1 = require("dotenv");
-(0, dotenv_1.config)({ path: `.env.${process.env.NODE_ENV}` });
 let SupabaseService = class SupabaseService {
     constructor(configService) {
         this.configService = configService;
         this.supabaseClient = (0, supabase_js_1.createClient)(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
-        this.supabaseAdmin = (0, supabase_js_1.createClient)(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-        console.log('Supabase URL:-------------');
+        this.supabaseAdmin = (0, supabase_js_1.createClient)(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
     }
     getClient() {
         return this.supabaseClient;
