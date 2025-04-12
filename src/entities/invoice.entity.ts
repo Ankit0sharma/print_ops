@@ -49,7 +49,7 @@ export class Invoice {
   invoiceNumber: string; // e.g., INV-2023-1001
 
   @Field(() => Customer)
-  @ManyToOne(() => Customer)
+  @ManyToOne(() => Customer, { eager: true })
   @JoinColumn({ name: 'customerId' })
   customer: Customer;
 
@@ -58,7 +58,7 @@ export class Invoice {
   customerId: string;
 
   @Field(() => Job, { nullable: true })
-  @ManyToOne(() => Job, { nullable: true })
+  @ManyToOne(() => Job, { nullable: true, eager: true })
   @JoinColumn({ name: 'jobId' })
   job?: Job;
 

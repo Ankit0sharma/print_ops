@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { Job } from './job.entity';
+import { Invoice } from './invoice.entity';
 import { CustomerType, CustomerStatus, transformCustomerType } from '../common/enums/customer.enum';
 
 @ObjectType()
@@ -89,8 +90,13 @@ export class Customer {
   @Column({ default: true })
   isActive: boolean;
 
+  @Field(() => [Job], { nullable: true })
   @OneToMany(() => Job, job => job.customer)
   jobs: Job[];
+
+  @Field(() => [Invoice], { nullable: true })
+  @OneToMany(() => Invoice, invoice => invoice.customer)
+  invoices: Invoice[];
 
   @Field()
   @CreateDateColumn()
@@ -99,6 +105,4 @@ export class Customer {
   @Field()
   @UpdateDateColumn()
   updatedAt: Date;
-
-
 }

@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { ObjectType, Field, ID, Float, GraphQLISODateTime } from '@nestjs/graphql';
 import { Customer } from './customer.entity';
 import { User } from './user.entity';
+import { Invoice } from './invoice.entity';
 import { JobStatus, JobPriority } from '../common/enums/job.enum';
 
 @ObjectType()
@@ -72,12 +73,16 @@ export class Job {
   assignedToId?: string;
 
   @Field(() => Customer)
-  @ManyToOne(() => Customer, customer => customer.jobs)
+  @ManyToOne(() => Customer, customer => customer.jobs, { eager: true })
   @JoinColumn({ name: 'customerId' })
   customer: Customer;
 
   @Column()
   customerId: string;
+
+  @Field(() => [Invoice], { nullable: true })
+  @OneToMany(() => Invoice, invoice => invoice.job)
+  invoices: Invoice[];
 
   @Field()
   @Column({ default: false })
