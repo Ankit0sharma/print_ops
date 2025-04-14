@@ -17,9 +17,21 @@ let AuthResponseDto = class AuthResponseDto {
 };
 exports.AuthResponseDto = AuthResponseDto;
 __decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    __metadata("design:type", Boolean)
+], AuthResponseDto.prototype, "success", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    __metadata("design:type", String)
+], AuthResponseDto.prototype, "message", void 0);
+__decorate([
     (0, graphql_1.Field)(),
     __metadata("design:type", String)
-], AuthResponseDto.prototype, "token", void 0);
+], AuthResponseDto.prototype, "accessToken", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    __metadata("design:type", String)
+], AuthResponseDto.prototype, "refreshToken", void 0);
 __decorate([
     (0, graphql_1.Field)(() => user_entity_1.User),
     __metadata("design:type", user_entity_1.User)

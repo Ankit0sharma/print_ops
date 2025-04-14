@@ -4,8 +4,17 @@ import { User } from '../../../entities/user.entity';
 
 @ObjectType()
 export class AuthResponseDto {
+  @Field({nullable: true})
+  success?: boolean;
+
+  @Field({nullable: true})
+  message?: string;
+
   @Field()
-  token: string;
+  accessToken: string;
+
+  @Field({nullable: true})
+  refreshToken?: string;
 
   @Field(() => User)
   user: User;

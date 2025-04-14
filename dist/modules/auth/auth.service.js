@@ -86,7 +86,10 @@ let AuthService = class AuthService {
                 throw new common_1.UnauthorizedException('User not found');
             }
             return {
-                token: authData.session.access_token,
+                success: true,
+                message: 'Login successful',
+                accessToken: authData.session.access_token,
+                refreshToken: authData.session.access_token,
                 user,
             };
         }
