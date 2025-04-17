@@ -1,5 +1,5 @@
 // src/modules/auth/dto/signup.input.ts
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsEmail, IsString, MinLength, IsNumber } from 'class-validator';
 
 @InputType()
@@ -21,7 +21,7 @@ export class SignUpInput {
   @IsString()
   lastName: string;
 
-  @Field()
+  @Field(()=> Int)
   @IsNumber()
   roleId: number;
 }

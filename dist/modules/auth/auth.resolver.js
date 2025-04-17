@@ -21,6 +21,7 @@ const auth_response_dto_1 = require("./dto/auth.response.dto");
 const signup_response_1 = require("./dto/signup.response");
 const otp_response_1 = require("./dto/otp.response");
 const change_password_input_1 = require("./dto/change-password.input");
+const refresh_token_input_dto_1 = require("./dto/refresh.token.input.dto");
 let AuthResolver = class AuthResolver {
     constructor(authService) {
         this.authService = authService;
@@ -36,6 +37,9 @@ let AuthResolver = class AuthResolver {
     }
     async changePassword(userId, input) {
         return this.authService.changePassword(userId, input);
+    }
+    async refreshToken(input) {
+        return this.authService.refreshToken(input.refreshToken);
     }
 };
 exports.AuthResolver = AuthResolver;
@@ -69,6 +73,13 @@ __decorate([
     __metadata("design:paramtypes", [String, change_password_input_1.ChangePasswordInput]),
     __metadata("design:returntype", Promise)
 ], AuthResolver.prototype, "changePassword", null);
+__decorate([
+    (0, graphql_1.Mutation)(() => auth_response_dto_1.AuthResponseDto),
+    __param(0, (0, graphql_1.Args)('input')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [refresh_token_input_dto_1.RefreshTokenInput]),
+    __metadata("design:returntype", Promise)
+], AuthResolver.prototype, "refreshToken", null);
 exports.AuthResolver = AuthResolver = __decorate([
     (0, graphql_1.Resolver)('Auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])

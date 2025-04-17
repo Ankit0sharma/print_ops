@@ -89,7 +89,7 @@ let AuthService = class AuthService {
                 success: true,
                 message: 'Login successful',
                 accessToken: authData.session.access_token,
-                refreshToken: authData.session.access_token,
+                refreshToken: authData.session.refresh_token,
                 user,
             };
         }
@@ -153,6 +153,33 @@ let AuthService = class AuthService {
         }
         catch (error) {
             throw new Error(`Password change failed: ${error.message}`);
+        }
+    }
+    async refreshToken(refreshToken) {
+        const supabase = this.supabaseService.getClient();
+        try {
+            // Use Supabase's built-in session management
+            const { data: { session }, error } = await supabase.auth.refreshSession();
+            if (error) {
+                throw new common_1.UnauthorizedException('Failed to refresh session');
+            }
+            // Get user from our database
+            const user = await this.userRepository.findOne({
+                where: { id: session.user.id },
+            });
+            if (!user) {
+                throw new common_1.UnauthorizedException('User not found');
+            }
+            return {
+                success: true,
+                message: 'Session refreshed successfully',
+                accessToken: session.access_token,
+                refreshToken: session.refresh_token,
+                user,
+            };
+        }
+        catch (error) {
+            throw new common_1.UnauthorizedException(`Session refresh failed: ${error.message}`);
         }
     }
 };

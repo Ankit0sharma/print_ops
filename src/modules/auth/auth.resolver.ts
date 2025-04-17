@@ -6,6 +6,7 @@ import { AuthResponseDto } from './dto/auth.response.dto';
 import { SignUpResponse } from './dto/signup.response';
 import { OtpResponse } from './dto/otp.response';
 import { ChangePasswordInput } from './dto/change-password.input';
+import { RefreshTokenInput } from './dto/refresh.token.input.dto';
 
 @Resolver('Auth')
 export class AuthResolver {
@@ -36,4 +37,11 @@ export class AuthResolver {
   ): Promise<OtpResponse> {
     return this.authService.changePassword(userId, input);
   }
+
+  @Mutation(() => AuthResponseDto)
+async refreshToken(
+  @Args('input') input: RefreshTokenInput
+): Promise<AuthResponseDto> {
+  return this.authService.refreshToken(input.refreshToken);
+}
 }

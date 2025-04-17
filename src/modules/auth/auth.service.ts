@@ -93,7 +93,7 @@ export class AuthService {
         success: true,
         message: 'Login successful',
         accessToken: authData.session.access_token,
-        refreshToken: authData.session.access_token,
+        refreshToken: authData.session.refresh_token,
         user,
       };
     } catch (error) {
@@ -169,6 +169,38 @@ export class AuthService {
       };
     } catch (error) {
       throw new Error(`Password change failed: ${error.message}`);
+    }
+  }
+
+  async refreshToken(refreshToken: string): Promise<AuthResponseDto> {
+    const supabase = this.supabaseService.getClient();
+
+    try {
+      // Use Supabase's built-in session management
+      const { data: { session }, error } = await supabase.auth.refreshSession();
+
+      if (error) {
+        throw new UnauthorizedException('Failed to refresh session');
+      }
+
+      // Get user from our database
+      const user = await this.userRepository.findOne({
+        where: { id: session.user.id },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      return {
+        success: true,
+        message: 'Session refreshed successfully',
+        accessToken: session.access_token,
+        refreshToken: session.refresh_token,
+        user,
+      };
+    } catch (error) {
+      throw new UnauthorizedException(`Session refresh failed: ${error.message}`);
     }
   }
 }

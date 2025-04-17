@@ -38,7 +38,7 @@ __decorate([
     __metadata("design:type", String)
 ], SignUpInput.prototype, "lastName", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
+    (0, graphql_1.Field)(() => graphql_1.Int),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], SignUpInput.prototype, "roleId", void 0);
